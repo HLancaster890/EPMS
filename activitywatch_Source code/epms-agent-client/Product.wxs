@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Agent Client — Main Product Definition
+  Installs the EPMS desktop monitoring agent with system tray UI.
+  Registers auto-start via Registry Run key and creates Start Menu shortcut.
+-->
+<Wix
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+    <?include Variables.wxi ?>
+
+    <Package
+        Name="$(var.ProductName)"
+        Manufacturer="$(var.Manufacturer)"
+        Version="$(var.ProductVersion)"
+        UpgradeCode="$(var.UpgradeCode)"
+        Scope="perMachine"
+        Compressed="yes">
+
+        <!-- Summary Information -->
+        <SummaryInformation
+            Description="EPMS Desktop Monitoring Agent — monitors activity and reports to EPMS Server"
+            Keywords="productivity;monitoring;agent;desktop"
+            Manufacturer="$(var.Manufacturer)" />
+
+        <!-- Major upgrade configuration -->
+        <MajorUpgrade
+            DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed."
+            AllowSameVersionUpgrades="yes"
+            Schedule="afterInstallInitialize"
+            Disallow="no"
+            IgnoreLanguage="yes" />
+
+        <!-- Media configuration -->
+        <Media Id="1" Cabinet="EPMSAgent.cab" EmbedCab="yes" CompressionLevel="high" />
+
+        <!-- Launch conditions -->
+        <Launch Condition="VersionNT64" Message="$(var.ProductName) requires a 64-bit operating system." />
+        <Launch Condition="(VersionNT &gt;= 1000)" Message="$(var.ProductName) requires Windows 10 or later." />
+        <Launch Condition="Privileged" Message="You must be an administrator to install $(var.ProductName)." />
+
+        <!-- Target directory structure -->
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="MANUFACTURERFOLDER" Name="$(var.Manufacturer)">
+                <Directory Id="INSTALLFOLDER" Name="EPMS Agent">
+                    <Directory Id="CONFIGFOLDER" Name="config" />
+                    <Directory Id="LOGFOLDER" Name="logs" />
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+
+        <!-- Start Menu shortcut -->
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="EPMS_STARTMENU_FOLDER" Name="EPMS Agent Client" />
+        </StandardDirectory>
+
+        <!-- ProgramData for runtime data -->
+        <StandardDirectory Id="CommonAppDataFolder">
+            <Directory Id="EPMSDATAFOLDER" Name="EPMS">
+                <Directory Id="EPMSAGENTFOLDER" Name="Agent">
+                    <Directory Id="EPMSAGENTCONFIG" Name="config" />
+                    <Directory Id="EPMSAGENTLOGS" Name="logs" />
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+
+        <!-- Features -->
+        <Feature Id="EPMS_Agent" Title="EPMS Agent Client" Level="1" ConfigurableDirectory="INSTALLFOLDER">
+            <Feature Id="CoreAgent" Title="Agent Application" Level="1" Description="EPMS Desktop Monitoring Agent executable">
+                <ComponentGroupRef Id="AgentBinaries" />
+                <ComponentGroupRef Id="AgentConfig" />
+                <ComponentGroupRef Id="AgentShortcuts" />
+                <ComponentGroupRef Id="AgentRegistry" />
+            </Feature>
+        </Feature>
+
+        <!-- UI references for progress/error text -->
+        <UIRef Id="WixUI_ErrorProgressText" />
+
+        <!-- Icon -->
+        <Icon Id="EPMSAgent.ico" SourceFile="$(var.ResourcesDir)\\logo.ico" />
+        <Property Id="ARPPRODUCTICON" Value="EPMSAgent.ico" />
+    </Package>
+
+    <!-- ============================================================ -->
+    <!-- Agent Executable and Directory Components                     -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="AgentBinaries">
+            <Component Id="cmp_agent_exe" Directory="INSTALLFOLDER" Guid="A1B2C3D4-E5F6-7890-ABCD-EF12345678A1">
+                <File Id="file_epms_agent" Source="$(var.DistDir)\\epms-agent.exe" KeyPath="yes" />
+            </Component>
+            <Component Id="cmp_agent_config_dir" Directory="CONFIGFOLDER" Guid="B2C3D4E5-F6A7-8901-BCDE-F123456789B2">
+                <CreateFolder />
+            </Component>
+            <Component Id="cmp_agent_logs_dir" Directory="LOGFOLDER" Guid="C3D4E5F6-A7B8-9012-CDEF-1234567890C3">
+                <CreateFolder />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- ProgramData Config/Logs Directories                           -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="AgentConfig">
+            <Component Id="cmp_epmsdata_config" Directory="EPMSAGENTCONFIG" Guid="D4E5F6A7-B8C9-0123-DEF1-2345678901D4" Permanent="yes">
+                <CreateFolder>
+                    <util:PermissionEx User="Users" GenericRead="yes" GenericWrite="yes" />
+                </CreateFolder>
+            </Component>
+            <Component Id="cmp_epmsdata_logs" Directory="EPMSAGENTLOGS" Guid="E5F6A7B8-C9D0-1234-EF12-3456789012E5" Permanent="yes">
+                <CreateFolder>
+                    <util:PermissionEx User="Users" GenericRead="yes" GenericWrite="yes" />
+                </CreateFolder>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Start Menu Shortcuts                                          -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="AgentShortcuts">
+            <Component Id="cmp_startmenu_shortcuts" Directory="EPMS_STARTMENU_FOLDER" Guid="F6A7B8C9-D0E1-2345-F123-4567890123F6">
+                <Shortcut Id="Shortcut_LaunchAgent"
+                    Name="EPMS Agent Client"
+                    Description="Launch EPMS Desktop Monitoring Agent"
+                    Target="[INSTALLFOLDER]epms-agent.exe"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="EPMSAgent.ico" />
+                <Shortcut Id="Shortcut_Uninstall"
+                    Name="Uninstall EPMS Agent Client"
+                    Description="Uninstall EPMS Agent Client"
+                    Target="[SystemFolder]msiexec.exe"
+                    Arguments="/x [ProductCode]" />
+                <RemoveFolder Id="rm_startmenu" On="uninstall" />
+                <RegistryValue Root="HKCU" Key="Software\EPMS\Agent" Name="ShortcutsInstalled" Type="integer" Value="1" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Registry Entries (Auto-Start + Config Store)                  -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="AgentRegistry">
+            <!-- Auto-start via Registry Run key -->
+            <Component Id="cmp_autostart_registry" Directory="INSTALLFOLDER" Guid="A7B8C9D0-E1F2-3456-7890-123456789A07">
+                <RegistryValue Root="HKLM"
+                    Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+                    Name="EPMS Agent Client"
+                    Value="&quot;[INSTALLFOLDER]epms-agent.exe&quot;"
+                    Type="string" />
+            </Component>
+
+            <!-- EPMS Agent registry store -->
+            <Component Id="cmp_epms_registry" Directory="INSTALLFOLDER" Guid="B8C9D0E1-F2A3-4567-8901-234567890B08">
+                <RegistryKey Root="HKLM" Key="SOFTWARE\EPMS\Agent">
+                    <RegistryValue Name="InstallPath" Value="[INSTALLFOLDER]" Type="string" />
+                    <RegistryValue Name="ConfigPath" Value="[EPMSAGENTCONFIG]" Type="string" />
+                    <RegistryValue Name="LogPath" Value="[EPMSAGENTLOGS]" Type="string" />
+                    <RegistryValue Name="Version" Value="$(var.ProductVersion)" Type="string" />
+                </RegistryKey>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

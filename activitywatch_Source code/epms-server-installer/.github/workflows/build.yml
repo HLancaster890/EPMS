@@ -1,0 +1,123 @@
+name: Build EPMS Server Installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 1.0.0.0)'
+        required: true
+        default: '1.0.0.0'
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install WiX Toolset v5
+        run: |
+          dotnet tool install --global wix
+          wix --version
+
+      - name: Restore NuGet packages
+        run: |
+          cd installer
+          dotnet restore CustomActions\EPMS.CustomActions.csproj
+
+      - name: Build Custom Actions
+        run: |
+          cd installer
+          dotnet build CustomActions\EPMS.CustomActions.csproj `
+            --configuration Release `
+            --output dist\CustomActions
+
+      - name: Build MSI Package
+        run: |
+          cd installer
+          wix build `
+            -arch x64 `
+            -bindpath Resources `
+            -bindpath dist\CustomActions `
+            -define "Configuration=Release" `
+            -define "ProductVersion=${{ github.event.inputs.version || '1.0.0.0' }}" `
+            -out dist\EPMS_Server_Core.msi `
+            Product.wxs Services.wxs Firewall.wxs Database.wxs CustomActions.wxs UI.wxs Variables.wxi
+
+      - name: Build Setup Bundle
+        run: |
+          cd installer
+          wix build `
+            -arch x64 `
+            -bindpath Resources `
+            -bindpath dist `
+            -define "ProductVersion=${{ github.event.inputs.version || '1.0.0.0' }}" `
+            -out dist\EPMS_Server_Setup_v${{ github.event.inputs.version || '1.0.0.0' }}.exe `
+            Bundle.wxs Variables.wxi
+
+      - name: Sign Installer
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          SIGNING_CERT_BASE64: ${{ secrets.SIGNING_CERT_BASE64 }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          echo "$env:SIGNING_CERT_BASE64" | base64 --decode > cert.pfx
+          signtool sign /fd SHA256 /a /f cert.pfx /p "$env:SIGNING_PASSWORD" `
+            /tr http://timestamp.digicert.com /td SHA256 `
+            installer\dist\EPMS_Server_Setup_v*.exe
+          signtool sign /fd SHA256 /a /f cert.pfx /p "$env:SIGNING_PASSWORD" `
+            /tr http://timestamp.digicert.com /td SHA256 `
+            installer\dist\EPMS_Server_Core.msi
+
+      - name: Validate MSI
+        run: |
+          cd installer
+          wix validate dist\EPMS_Server_Core.msi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: epms-server-installer
+          path: |
+            installer\dist\*.exe
+            installer\dist\*.msi
+          retention-days: 90
+
+      - name: Create Release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            installer\dist\*.exe
+            installer\dist\*.msi
+          generate_release_notes: true
+          name: EPMS Enterprise Server v${{ github.event.inputs.version || github.ref_name }}
+          body: |
+            ## EPMS Enterprise Server ${{ github.event.inputs.version || github.ref_name }}
+
+            ### Downloads
+            - **Setup Bundle**: EPMS_Server_Setup_v${{ github.event.inputs.version || '1.0.0.0' }}.exe
+            - **MSI Package**: EPMS_Server_Core.msi
+
+            ### Installation
+            ```batch
+            EPMS_Server_Setup_v${{ github.event.inputs.version || '1.0.0.0' }}.exe /quiet
+            ```
+
+            ### Silent Installation with Config
+            ```batch
+            EPMS_Server_Setup_v${{ github.event.inputs.version || '1.0.0.0' }}.exe /quiet /config deploy-config.xml
+            ```
+
+            ### Changelog
+            See the commit history for details.

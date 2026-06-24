@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Enterprise Server — Database Setup Components
+  Handles embedded PostgreSQL installation and database initialization.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+    <?include Variables.wxi ?>
+
+    <!-- ============================================================ -->
+    <!-- PostgreSQL Embedded Installation                             -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="PostgreSQLSetup">
+            <!-- PostgreSQL binaries -->
+            <Component Id="cmp_PostgreSQL" Directory="DATAFOLDER" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567801">
+                <File Id="file_postgresql_installer" Source="$(var.ResourcesDir)\postgresql-16.4-1-windows-x64.exe" KeyPath="yes" />
+                <File Id="file_postgresql_config" Source="$(var.ResourcesDir)\postgresql.conf.template" />
+                <File Id="file_pg_hba" Source="$(var.ResourcesDir)\pg_hba.conf.template" />
+            </Component>
+
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Redis Setup                                                   -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="RedisSetup">
+            <Component Id="cmp_Redis" Directory="DATAFOLDER" Guid="C3D4E5F6-A7B8-9012-CDEF-123456789012">
+                <File Id="file_redis_server" Source="$(var.ResourcesDir)\redis-server.exe" KeyPath="yes" />
+                <File Id="file_redis_cli" Source="$(var.ResourcesDir)\redis-cli.exe" />
+                <File Id="file_redis_config" Source="$(var.ResourcesDir)\redis.conf.template" />
+
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- NATS Setup                                                    -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="NATSSetup">
+            <Component Id="cmp_NATS" Directory="DATAFOLDER" Guid="D4E5F6A7-B8C9-0123-DEF1-234567890123">
+                <File Id="file_nats_server" Source="$(var.ResourcesDir)\nats-server.exe" KeyPath="yes" />
+                <File Id="file_nats_config" Source="$(var.ResourcesDir)\nats.conf.template" />
+
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- SQL Migration Scripts                                         -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="SQLScripts">
+            <!-- Initial schema -->
+            <Component Id="cmp_SQL_Initial" Directory="SQLFOLDER" Guid="E5F6A7B8-C9D0-1234-EF12-345678901234">
+                <File Id="file_sql_001_initial" Source="$(var.ConfigDir)\sql\001_initial_schema.sql" KeyPath="yes" />
+                <File Id="file_sql_002_seed" Source="$(var.ConfigDir)\sql\002_seed_data.sql" />
+                <File Id="file_sql_003_indexes" Source="$(var.ConfigDir)\sql\003_indexes.sql" />
+            </Component>
+
+            <!-- Migration scripts directory -->
+            <Component Id="cmp_SQL_Migrations" Directory="SQLFOLDER" Guid="F6A7B8C9-D0E1-2345-F123-456789012345">
+                <CreateFolder />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Configuration Files                                           -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="ConfigFiles">
+            <!-- Main appsettings -->
+            <Component Id="cmp_AppSettingsTemplate" Directory="CONFIGFOLDER" Guid="A7B8C9D0-E1F2-3456-7890-123456789a01">
+                <File Id="file_appsettings_template" Source="$(var.ConfigDir)\appsettings.json.template" KeyPath="yes" />
+                <File Id="file_logging_config" Source="$(var.ConfigDir)\logging.yaml.template" />
+            </Component>
+
+            <!-- NGINX configuration -->
+            <Component Id="cmp_NGINXConfig" Directory="CONFIGFOLDER" Guid="B8C9D0E1-F2A3-4567-8901-234567890b12">
+                <File Id="file_nginx_config" Source="$(var.ConfigDir)\nginx.conf.template" KeyPath="yes" />
+            </Component>
+
+            <!-- EPMS EPMS application configuration (generated at install time) -->
+            <Component Id="cmp_EPMSConfig" Directory="CONFIGFOLDER" Guid="C9D0E1F2-A3B4-5678-9012-345678901c23">
+                <File Id="file_epms_config" Source="$(var.ConfigDir)\epms.yaml.template" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Web UI Static Files                                           -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="WebUIFiles">
+            <Component Id="cmp_WebUI_Index" Directory="WEBUIFOLDER" Guid="D0E1F2A3-B4C5-6789-0123-456789012d34">
+                <File Id="file_webui_index" Source="$(var.ResourcesDir)\web-ui\index.html" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Registry: EPMS Configuration Store                           -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="EPMSRegistry">
+            <Component Id="cmp_EPMSRegistry" Directory="INSTALLFOLDER" Guid="E1F2A3B4-C5D6-7890-1234-567890123e45">
+                <RegistryKey Root="HKLM" Key="SOFTWARE\EPMS\Server">
+                    <RegistryValue Name="InstallPath" Value="[INSTALLFOLDER]" Type="string" />
+                    <RegistryValue Name="ConfigPath" Value="[CONFIGFOLDER]" Type="string" />
+                    <RegistryValue Name="DataPath" Value="[DATAFOLDER]" Type="string" />
+                    <RegistryValue Name="LogPath" Value="[EPMSLOGFOLDER]" Type="string" />
+                    <RegistryValue Name="Version" Value="$(var.ProductVersion)" Type="string" />
+                    <RegistryValue Name="InstallDate" Type="string" Value="!(loc.InstallDate)" />
+                    <RegistryValue Name="Port" Value="[EPMS_PORT]" Type="integer" />
+                    <RegistryValue Name="SSLMode" Value="[EPMS_SSL_MODE]" Type="string" />
+                    <RegistryValue Name="DbPort" Value="[EPMS_DB_PORT]" Type="integer" />
+                    <RegistryValue Name="RedisPort" Value="[EPMS_REDIS_PORT]" Type="integer" />
+                    <RegistryValue Name="NATSPort" Value="[EPMS_NATS_PORT]" Type="integer" />
+                </RegistryKey>
+
+                <RegistryKey Root="HKLM" Key="SOFTWARE\EPMS\Server\Services">
+                    <RegistryValue Name="API" Value="$(var.Service_Api)" Type="string" />
+                    <RegistryValue Name="Analytics" Value="$(var.Service_Analytics)" Type="string" />
+                    <RegistryValue Name="Reporting" Value="$(var.Service_Reporting)" Type="string" />
+                    <RegistryValue Name="Notifications" Value="$(var.Service_Notifications)" Type="string" />
+                    <RegistryValue Name="EventProcessor" Value="$(var.Service_EventProcessor)" Type="string" />
+                    <RegistryValue Name="AgentGateway" Value="$(var.Service_AgentGateway)" Type="string" />
+                </RegistryKey>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

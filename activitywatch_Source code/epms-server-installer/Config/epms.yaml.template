@@ -1,0 +1,68 @@
+# =============================================================
+# EPMS Enterprise Server — Application Configuration
+# =============================================================
+
+version: "1.0.0"
+environment: "production"
+
+server:
+  name: "EPMS Enterprise Server"
+  description: "Enterprise Productivity Management System"
+  instance_id: "{{INSTANCE_ID}}"
+
+logging:
+  level: "info"
+  format: "json"
+  output: ["file", "console"]
+  file_path: "{{LOG_PATH}}\\{{SERVICE_NAME}}.log"
+  max_size_mb: 100
+  max_files: 10
+  include_caller: true
+  sensitive_fields:
+    - "password"
+    - "api_key"
+    - "secret"
+    - "token"
+    - "authorization"
+
+database:
+  migration_path: "{{INSTALL_PATH}}\\sql"
+  auto_migrate: true
+  migration_table: "schema_migrations"
+  backup_enabled: true
+  backup_path: "{{DATA_PATH}}\\backups"
+  backup_interval_hours: 24
+  backup_retention_days: 7
+
+health:
+  liveness_path: "/health/live"
+  readiness_path: "/health/ready"
+  startup_path: "/health/startup"
+  check_db: true
+  check_redis: true
+  check_nats: true
+  check_disk: true
+  disk_threshold_percent: 90
+
+rate_limiting:
+  enabled: true
+  default_limit_per_minute: 60
+  default_burst: 10
+  endpoint_overrides:
+    "/api/v1/agent/heartbeat": 300
+    "/api/v1/agent/register": 10
+    "/health": 1000
+    "/metrics": 100
+
+cors:
+  enabled: true
+  allow_origins: ["*"]
+  allow_methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+  allow_headers: ["Content-Type", "Authorization", "X-API-Key", "X-Request-ID"]
+  expose_headers: ["X-Request-ID", "X-RateLimit-Remaining"]
+  max_age: 3600
+
+telemetry:
+  enabled: false
+  endpoint: ""
+  sample_rate: 0.1

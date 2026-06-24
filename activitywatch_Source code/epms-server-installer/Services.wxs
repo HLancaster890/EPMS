@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Enterprise Server — Windows Service Registration
+  Service lifecycle is managed by NSSM custom actions (InstallNSSMServices/RemoveNSSMServices).
+  This file provides the NSSM binary and service failure recovery configuration.
+  Note: ServiceControl elements are intentionally omitted because NSSM
+  manages service lifecycle via its own command-line interface.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+    <?include Variables.wxi ?>
+
+    <!-- ============================================================ -->
+    <!-- NSSM Service Wrapper Binary                                   -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="NSSMServiceSetup">
+            <Component Id="cmp_NSSM_Core" Directory="NSSMFOLDER" Guid="A7B8C9D0-E1F2-3456-7890-123456789a01">
+                <File Id="file_nssm" Source="$(var.ResourcesDir)\nssm.exe" KeyPath="yes" />
+                <RemoveFile Id="rm_nssm" On="uninstall" Name="nssm.exe" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Service Recovery Configuration (via Registry)                -->
+    <!-- Each service: auto-restart on crash with 10s delay           -->
+    <!-- FailureActions binary: 3 failures, all restart, 10s delay    -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="ServiceRecoveryConfig">
+            <!-- API Service -->
+            <Component Id="cmp_APIRecovery" Directory="INSTALLFOLDER" Guid="B7C8D9E0-F1A2-4567-8901-234567890b02">
+                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\$(var.Service_Api)">
+                    <RegistryValue Name="FailureActions" Value="hex:00,00,00,00,00,00,00,00,00,00,00,00,03,00,00,00,14,00,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00" Type="binary" />
+                    <RegistryValue Name="FailureActionsFlag" Value="1" Type="integer" />
+                </RegistryKey>
+            </Component>
+
+            <!-- All other services -->
+            <Component Id="cmp_GenRecovery" Directory="INSTALLFOLDER" Guid="C8D9E0F1-A2B3-5678-9012-345678901c03">
+                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\$(var.Service_EventProcessor)">
+                    <RegistryValue Name="FailureActions" Value="hex:00,00,00,00,00,00,00,00,00,00,00,00,03,00,00,00,14,00,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00" Type="binary" />
+                    <RegistryValue Name="FailureActionsFlag" Value="1" Type="integer" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\$(var.Service_Analytics)">
+                    <RegistryValue Name="FailureActions" Value="hex:00,00,00,00,00,00,00,00,00,00,00,00,03,00,00,00,14,00,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00" Type="binary" />
+                    <RegistryValue Name="FailureActionsFlag" Value="1" Type="integer" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\$(var.Service_Reporting)">
+                    <RegistryValue Name="FailureActions" Value="hex:00,00,00,00,00,00,00,00,00,00,00,00,03,00,00,00,14,00,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00" Type="binary" />
+                    <RegistryValue Name="FailureActionsFlag" Value="1" Type="integer" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\$(var.Service_Notifications)">
+                    <RegistryValue Name="FailureActions" Value="hex:00,00,00,00,00,00,00,00,00,00,00,00,03,00,00,00,14,00,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00" Type="binary" />
+                    <RegistryValue Name="FailureActionsFlag" Value="1" Type="integer" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\$(var.Service_AgentGateway)">
+                    <RegistryValue Name="FailureActions" Value="hex:00,00,00,00,00,00,00,00,00,00,00,00,03,00,00,00,14,00,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00,01,00,00,00,60,ea,00,00" Type="binary" />
+                    <RegistryValue Name="FailureActionsFlag" Value="1" Type="integer" />
+                </RegistryKey>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Core Binaries (NGINX, OpenSSL)                                -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="CoreBinaries">
+            <Component Id="cmp_NGINX" Directory="TOOLSFOLDER" Guid="D9E0F1A2-B3C4-6789-0123-456789012d04">
+                <File Id="file_nginx" Source="$(var.ResourcesDir)\nginx.exe" KeyPath="yes" />
+            </Component>
+            <Component Id="cmp_OpenSSL" Directory="TOOLSFOLDER" Guid="E0F1A2B3-C4D5-7890-1234-567890123e05">
+                <File Id="file_openssl" Source="$(var.ResourcesDir)\openssl.exe" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- ============================================================ -->
+    <!-- Service Executable Binaries (installed by Features above)     -->
+    <!-- ============================================================ -->
+    <Fragment>
+        <ComponentGroup Id="APIService">
+            <Component Id="cmp_api_exe" Directory="SERVICESFOLDER" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+                <File Id="file_epms_api" Source="$(var.ResourcesDir)\epms-api.exe" KeyPath="yes" ShortName="EPMSAPI.EXE" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="EventProcessorService">
+            <Component Id="cmp_eproc_exe" Directory="SERVICESFOLDER" Guid="B2C3D4E5-F6A7-8901-BCDE-F12345678901">
+                <File Id="file_epms_eventproc" Source="$(var.ResourcesDir)\epms-event-processor.exe" KeyPath="yes" ShortName="EPMSEVT.EXE" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="AnalyticsService">
+            <Component Id="cmp_analytics_exe" Directory="SERVICESFOLDER" Guid="C3D4E5F6-A7B8-9012-CDEF-1234567890A1">
+                <File Id="file_epms_analytics" Source="$(var.ResourcesDir)\epms-analytics.exe" KeyPath="yes" ShortName="EPMSANL.EXE" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="ReportingService">
+            <Component Id="cmp_reporting_exe" Directory="SERVICESFOLDER" Guid="D4E5F6A7-B8C9-0123-DEF1-2345678901B2">
+                <File Id="file_epms_reporting" Source="$(var.ResourcesDir)\epms-reporting.exe" KeyPath="yes" ShortName="EPMSRPT.EXE" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="NotificationService">
+            <Component Id="cmp_notify_exe" Directory="SERVICESFOLDER" Guid="E5F6A7B8-C9D0-1234-EF12-3456789012C3">
+                <File Id="file_epms_notifications" Source="$(var.ResourcesDir)\epms-notifications.exe" KeyPath="yes" ShortName="EPMSNOT.EXE" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="AgentGatewayService">
+            <Component Id="cmp_gateway_exe" Directory="SERVICESFOLDER" Guid="F6A7B8C9-D0E1-2345-F123-4567890123D4">
+                <File Id="file_epms_gateway" Source="$(var.ResourcesDir)\epms-agent-gateway.exe" KeyPath="yes" ShortName="EPMSGAT.EXE" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+
+</Wix>

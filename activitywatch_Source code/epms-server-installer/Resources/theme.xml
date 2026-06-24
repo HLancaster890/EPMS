@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  EPMS Enterprise Server — Burn Bootstrapper Theme
+  Controls the visual appearance of the prerequisite installer UI.
+-->
+<Theme xmlns="http://wixtoolset.org/schemas/v4/thm"
+       Overwrite="yes">
+
+    <!-- Window style -->
+    <Window Width="500" Height="350" HexStyle="100a0000" FontId="0">
+        <Font Id="0" Height="-12" Weight="400" Foreground="000000" Background="FFFFFF">Segoe UI</Font>
+        <Font Id="1" Height="-24" Weight="700" Foreground="000000">Segoe UI</Font>
+        <Font Id="2" Height="-11" Weight="400" Foreground="FFFFFF">Segoe UI</Font>
+        <Font Id="3" Height="-11" Weight="700" Foreground="000000">Segoe UI</Font>
+
+        <!-- Background -->
+        <Page Name="Install">
+            <!-- Title -->
+            <Text X="20" Y="20" Width="460" Height="30" Visible="yes" FontId="1" DisablePrefix="yes">
+                EPMS Enterprise Server
+            </Text>
+
+            <!-- Subtitle -->
+            <Text X="20" Y="55" Width="460" Height="20" Visible="yes" FontId="0" DisablePrefix="yes">
+                Enterprise Productivity Management System
+            </Text>
+
+            <!-- Progress bar -->
+            <Progressbar X="20" Y="280" Width="460" Height="20" Visible="yes" />
+
+            <!-- Status text -->
+            <Text X="20" Y="310" Width="460" Height="20" Visible="yes" FontId="0" DisablePrefix="yes">
+                #(loc.OverallProgressLabel)
+            </Text>
+
+            <!-- Action button -->
+            <Button Name="ActionButton" X="370" Y="310" Width="110" Height="25" Visible="yes">
+                <Text FontId="0" DisablePrefix="yes">#(loc.ActionButtonText)</Text>
+            </Button>
+        </Page>
+    </Window>
+</Theme>

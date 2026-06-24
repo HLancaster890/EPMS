@@ -1,0 +1,14 @@
+2026-06-23 21:30:25,368 [WARNING] epms.server: CORS_ORIGINS not set — defaulting to http://localhost:3000. Set explicit origins for production.
+2026-06-23 21:30:25,370 [INFO] epms.server: Web dashboard mounted at /dashboard from D:\activitywatch\activitywatch_Source code\epms-server-installer\Resources\services\web-ui
+INFO:     Started server process [28400]
+INFO:     Waiting for application startup.
+2026-06-23 21:30:25,490 [CRITICAL] epms.server: EPMS_API_KEY_PEPPER not set! API key hashing uses weak fallback. Set a strong random secret.
+2026-06-23 21:30:25,582 [INFO] epms.server: Database connection pool created
+2026-06-23 21:30:27,623 [INFO] epms.server: Redis connection established
+2026-06-23 21:30:27,624 [INFO] epms.server: Aggregation worker scheduled
+2026-06-23 21:30:27,624 [INFO] epms.server: Background aggregation worker started
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while attempting to bind on address ('0.0.0.0', 8000): [winerror 10048] only one usage of each socket address (protocol/network address/port) is normally permitted
+INFO:     Waiting for application shutdown.
+2026-06-23 21:30:27,630 [INFO] epms.server: Server shutdown complete
+INFO:     Application shutdown complete.

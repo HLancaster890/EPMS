@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Enterprise Server — Custom Installer UI
+  Provides a professional installation wizard with enterprise configuration panels.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+    <?include Variables.wxi ?>
+
+    <Fragment>
+        <UI Id="EPMS_InstallUI">
+
+            <!-- ======================================================== -->
+            <!-- Standard Dialog References                                -->
+            <!-- ======================================================== -->
+            <DialogRef Id="WelcomeDialog" />
+            <DialogRef Id="LicenseAgreementDialog" />
+            <DialogRef Id="CancelDialog" />
+
+            <!-- ======================================================== -->
+            <!-- Standard Dialogs                                         -->
+            <!-- ======================================================== -->
+
+            <!-- Welcome Dialog -->
+            <Dialog Id="WelcomeDialog" Width="370" Height="270" Title="[ProductName] Setup">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Welcome to [ProductName] Setup" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Welcome to the EPMS Enterprise Server installation wizard." />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="WelcomeText" Type="Text" X="20" Y="60" Width="330" Height="120" Sunken="yes" Text="This wizard will guide you through the installation of EPMS Enterprise Server.&#13;&#10;&#13;&#10;EPMS Enterprise Server is a comprehensive productivity management system that helps organizations track, analyze, and optimize workforce productivity.&#13;&#10;&#13;&#10;Click Next to continue." />
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)" Default="yes" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUICancel)" />
+            </Dialog>
+
+            <!-- License Agreement Dialog -->
+            <Dialog Id="LicenseAgreementDialog" Width="370" Height="270" Title="[ProductName] Setup">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}License Agreement" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Please read the following license agreement." />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="LicenseText" Type="ScrollableText" X="20" Y="55" Width="330" Height="120" Sunken="yes">
+                    <Text SourceFile="$(var.ResourcesDir)\license.rtf" />
+                </Control>
+                <Control Id="LicenseAcceptedCheck" Type="CheckBox" X="20" Y="185" Width="330" Height="15" Property="LicenseAccepted" Text="!(loc.LicenseAcceptText)" CheckBoxValue="1" />
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)" Default="yes" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUICancel)" />
+            </Dialog>
+
+            <!-- Cancel Dialog (confirmation) -->
+            <Dialog Id="CancelDialog" Width="260" Height="120" Title="[ProductName] Setup" NoMinimize="yes">
+                <Control Id="Text" Type="Text" X="15" Y="15" Width="230" Height="40" Text="Are you sure you want to cancel the installation?" />
+                <Control Id="Yes" Type="PushButton" X="100" Y="85" Width="56" Height="17" Text="!(loc.WixUIYes)" Default="yes" />
+                <Control Id="No" Type="PushButton" X="170" Y="85" Width="56" Height="17" Text="!(loc.WixUINo)" />
+            </Dialog>
+
+            <!-- ======================================================== -->
+            <!-- Custom Dialogs                                           -->
+            <!-- ======================================================== -->
+
+            <!-- Installation Type Selection -->
+            <Dialog Id="InstallTypeDialog" Width="370" Height="270" Title="[ProductName] Setup">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Installation Type" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Select the installation type that best fits your environment." />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+
+                <!-- Merge all three radio buttons into one group to avoid RadioButton key collision -->
+                <Control Id="InstallTypeGroup" Type="RadioButtonGroup" X="20" Y="60" Width="330" Height="150" Property="EPMS_INSTALL_TYPE">
+                    <RadioButtonGroup Property="EPMS_INSTALL_TYPE">
+                        <RadioButton Value="express" X="0" Y="0" Width="330" Height="45" Text="Express (Recommended)&#13;&#10;Includes all services, PostgreSQL, Redis, NATS, and Web UI on a single server." />
+                        <RadioButton Value="custom" X="0" Y="50" Width="330" Height="45" Text="Custom&#13;&#10;Choose which components to install. Allows connecting to existing database servers." />
+                        <RadioButton Value="distributed" X="0" Y="100" Width="330" Height="45" Text="Distributed (Multi-Server)&#13;&#10;For load-balanced, HA deployments across multiple servers." />
+                    </RadioButtonGroup>
+                </Control>
+
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)" Default="yes" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUICancel)" />
+            </Dialog>
+
+            <!-- Server Configuration Dialog -->
+            <Dialog Id="ServerConfigDialog" Width="370" Height="270" Title="[ProductName] Setup">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Server Configuration" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Configure the EPMS server network settings." />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+
+                <!-- Bind Address -->
+                <Control Id="BindAddressLabel" Type="Text" X="20" Y="60" Width="100" Height="15" Text="Bind Address:" />
+                <Control Id="BindAddress" Type="Edit" X="130" Y="58" Width="220" Height="17" Property="EPMS_BIND_ADDRESS" Text="0.0.0.0" />
+
+                <!-- Port -->
+                <Control Id="PortLabel" Type="Text" X="20" Y="85" Width="100" Height="15" Text="HTTPS Port:" />
+                <Control Id="Port" Type="Edit" X="130" Y="83" Width="80" Height="17" Property="EPMS_PORT" Text="443" />
+
+                <!-- Domain -->
+                <Control Id="DomainLabel" Type="Text" X="20" Y="110" Width="100" Height="15" Text="Domain Name:" />
+                <Control Id="Domain" Type="Edit" X="130" Y="108" Width="220" Height="17" Property="EPMS_DOMAIN" />
+                <Control Id="DomainNote" Type="Text" X="130" Y="125" Width="220" Height="15" Text="Optional. Leave blank to use IP address only." />
+
+                <!-- SSL Mode -->
+                <Control Id="SSLLabel" Type="Text" X="20" Y="150" Width="100" Height="15" Text="SSL Certificate:" />
+                <Control Id="SSLSelfSigned" Type="RadioButtonGroup" X="130" Y="148" Width="220" Height="45">
+                    <RadioButtonGroup Property="EPMS_SSL_MODE">
+                        <RadioButton Value="self-signed" X="0" Y="0" Width="220" Height="15" Text="Generate self-signed certificate" />
+                        <RadioButton Value="letsencrypt" X="0" Y="18" Width="220" Height="15" Text="Let&apos;s Encrypt (requires public domain)" />
+                    </RadioButtonGroup>
+                </Control>
+
+                <!-- Import Certificate button (for custom mode) -->
+                <Control Id="ImportCert" Type="PushButton" X="130" Y="200" Width="120" Height="17" Text="Import Certificate..." />
+
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)" Default="yes" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUICancel)" />
+            </Dialog>
+
+            <!-- Database Configuration Dialog -->
+            <Dialog Id="DatabaseConfigDialog" Width="370" Height="270" Title="[ProductName] Setup">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Database Configuration" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Configure database settings for EPMS." />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+
+                <!-- Database Mode -->
+                <Control Id="DBModeLabel" Type="Text" X="20" Y="60" Width="120" Height="15" Text="Database Mode:" />
+                <Control Id="DBModeEmbedded" Type="RadioButtonGroup" X="20" Y="78" Width="330" Height="60" Property="EPMS_INSTALL_POSTGRESQL">
+                    <RadioButtonGroup Property="EPMS_INSTALL_POSTGRESQL">
+                        <RadioButton Value="1" X="145" Y="0" Width="180" Height="15" Text="Install embedded PostgreSQL" />
+                        <RadioButton Value="0" X="145" Y="0" Width="180" Height="15" Text="Connect to existing database" />
+                    </RadioButtonGroup>
+                </Control>
+
+                <!-- Existing DB connection (visible when not embedded) -->
+                <Control Id="DBHostLabel" Type="Text" X="20" Y="145" Width="100" Height="15" Text="Host:" />
+                <Control Id="DBHost" Type="Edit" X="130" Y="143" Width="220" Height="17" Property="EPMS_DB_HOST" Text="localhost" />
+                <Control Id="DBPortLabel" Type="Text" X="20" Y="170" Width="100" Height="15" Text="Port:" />
+                <Control Id="DBPort" Type="Edit" X="130" Y="168" Width="80" Height="17" Property="EPMS_DB_PORT" Text="5432" />
+                <Control Id="DBPasswordLabel" Type="Text" X="20" Y="195" Width="100" Height="15" Text="Admin Password:" />
+                <Control Id="DBPassword" Type="Edit" X="130" Y="193" Width="220" Height="17" Property="EPMS_DB_PASSWORD" Password="yes" />
+
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)" Default="yes" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUICancel)" />
+            </Dialog>
+
+            <!-- Admin Account Creation Dialog -->
+            <Dialog Id="AdminAccountDialog" Width="370" Height="270" Title="[ProductName] Setup">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Administrator Account" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Create the initial administrator account." />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+
+                <Control Id="EmailLabel" Type="Text" X="20" Y="60" Width="100" Height="15" Text="Email Address:" />
+                <Control Id="AdminEmail" Type="Edit" X="130" Y="58" Width="220" Height="17" Property="EPMS_ADMIN_EMAIL" />
+
+                <Control Id="PasswordLabel" Type="Text" X="20" Y="90" Width="100" Height="15" Text="Password:" />
+                <Control Id="AdminPassword" Type="Edit" X="130" Y="88" Width="220" Height="17" Property="EPMS_ADMIN_PASSWORD" Password="yes" />
+
+                <Control Id="ConfirmLabel" Type="Text" X="20" Y="115" Width="100" Height="15" Text="Confirm Password:" />
+                <Control Id="AdminConfirm" Type="Edit" X="130" Y="113" Width="220" Height="17" Property="EPMS_ADMIN_CONFIRM" Password="yes" />
+
+                <Control Id="OrgLabel" Type="Text" X="20" Y="145" Width="100" Height="15" Text="Organization:" />
+                <Control Id="AdminOrg" Type="Edit" X="130" Y="143" Width="220" Height="17" Property="EPMS_ORGANIZATION" Text="Default Organization" />
+
+                <Control Id="PasswordNote" Type="Text" X="130" Y="168" Width="220" Height="30" Text="Password must be at least 12 characters with uppercase, lowercase, number, and special character." />
+
+                <!-- Password strength indicator (visual only) -->
+                <Control Id="PasswordStrength" Type="Text" X="130" Y="200" Width="220" Height="15" Text="Password strength: Not entered yet" />
+
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUINext)" Default="yes" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUICancel)" />
+            </Dialog>
+
+            <!-- Ready to Install Dialog (Summary) -->
+            <Dialog Id="ReadyDialog" Width="370" Height="270" Title="[ProductName] Setup">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Ready to Install" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Please review the installation summary before proceeding." />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+
+                <!-- Summary Scrollable Text -->
+                <Control Id="SummaryText" Type="ScrollableText" X="20" Y="55" Width="330" Height="150" Sunken="yes" Text="$(loc.ReadySummaryText)" />
+
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Install" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="!(loc.WixUIInstall)" Default="yes" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUICancel)" />
+            </Dialog>
+
+            <!-- Installation Progress Dialog (customized) -->
+            <Dialog Id="ProgressDialog" Width="370" Height="270" Title="[ProductName] Setup" Modeless="yes">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Installing EPMS Server" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+
+                <Control Id="ActionText" Type="Text" X="20" Y="55" Width="330" Height="30" Text="[ActionText]" />
+                <Control Id="ProgressBar" Type="ProgressBar" X="20" Y="90" Width="330" Height="20" ProgressBlocks="yes" />
+
+                <!-- Status message -->
+                <Control Id="StatusLabel" Type="Text" X="20" Y="120" Width="330" Height="90" Text="[EPMS_INSTALL_STATUS]" Sunken="yes" />
+
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUICancel)" />
+            </Dialog>
+
+            <!-- Success Dialog (post-install) -->
+            <Dialog Id="SuccessDialog" Width="370" Height="270" Title="[ProductName] Setup">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUIBannerBmp" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Installation Complete" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="EPMS Enterprise Server has been successfully installed." />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+
+                <Control Id="SuccessIcon" Type="Icon" X="15" Y="60" Width="32" Height="32" FixedSize="yes" Text="EPMS.ico" />
+
+                <Control Id="Summary" Type="Text" X="60" Y="60" Width="290" Height="80" Text="$(loc.InstallSuccessText)" />
+
+                <Control Id="LaunchCheckbox" Type="CheckBox" X="60" Y="150" Width="290" Height="15" Property="EPMS_LAUNCH_DASHBOARD" Text="$(loc.LaunchDashboardCheckbox)" CheckBoxValue="1" />
+
+                <Control Id="ViewLogCheckbox" Type="CheckBox" X="60" Y="170" Width="290" Height="15" Property="EPMS_VIEW_LOG" Text="$(loc.ViewInstallLogCheckbox)" CheckBoxValue="1" />
+
+                <Control Id="Finish" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="!(loc.WixUIFinish)" Default="yes" />
+            </Dialog>
+
+            <!-- ======================================================== -->
+            <!-- Dialog Publishing (wiring the UI flow)                    -->
+            <!-- ======================================================== -->
+
+            <!-- Welcome → License → InstallType → ServerConfig → DatabaseConfig → Admin → Ready → Progress → Success -->
+            <Publish Dialog="WelcomeDialog" Control="Next" Event="NewDialog" Value="LicenseAgreementDialog" Condition="1" />
+            <Publish Dialog="LicenseAgreementDialog" Control="Next" Event="NewDialog" Value="InstallTypeDialog" Condition="LicenseAccepted = 1" />
+            <Publish Dialog="InstallTypeDialog" Control="Next" Event="NewDialog" Value="ServerConfigDialog" Condition="1" />
+            <Publish Dialog="ServerConfigDialog" Control="Next" Event="NewDialog" Value="DatabaseConfigDialog" Condition="1" />
+            <Publish Dialog="DatabaseConfigDialog" Control="Next" Event="NewDialog" Value="AdminAccountDialog" Condition="1" />
+            <Publish Dialog="AdminAccountDialog" Control="Next" Event="NewDialog" Value="ReadyDialog" Condition="1" />
+            <Publish Dialog="ReadyDialog" Control="Install" Event="NewDialog" Value="ProgressDialog" Condition="1" />
+            <Publish Dialog="ProgressDialog" Control="Cancel" Event="SpawnDialog" Value="CancelDialog" Condition="1" />
+
+            <!-- Back navigation -->
+            <Publish Dialog="LicenseAgreementDialog" Control="Back" Event="NewDialog" Value="WelcomeDialog" Condition="1" />
+            <Publish Dialog="InstallTypeDialog" Control="Back" Event="NewDialog" Value="LicenseAgreementDialog" Condition="1" />
+            <Publish Dialog="ServerConfigDialog" Control="Back" Event="NewDialog" Value="InstallTypeDialog" Condition="1" />
+            <Publish Dialog="DatabaseConfigDialog" Control="Back" Event="NewDialog" Value="ServerConfigDialog" Condition="1" />
+            <Publish Dialog="AdminAccountDialog" Control="Back" Event="NewDialog" Value="DatabaseConfigDialog" Condition="1" />
+            <Publish Dialog="ReadyDialog" Control="Back" Event="NewDialog" Value="AdminAccountDialog" Condition="1" />
+
+            <!-- Property validation on Next -->
+            <Publish Dialog="AdminAccountDialog" Control="Next" Event="DoAction" Value="ValidateServerConfig" Condition="1" />
+
+            <!-- Property persistence -->
+            <Publish Dialog="ServerConfigDialog" Control="Next" Event="DoAction" Value="SaveInstallProperties" Condition="1" />
+
+            <!-- ======================================================== -->
+            <!-- Text Styles                                              -->
+            <!-- ======================================================== -->
+            <TextStyle Id="WixUI_Font_Title" FaceName="Segoe UI" Size="12" Bold="yes" />
+            <TextStyle Id="WixUI_Font_Normal" FaceName="Segoe UI" Size="8" />
+            <TextStyle Id="WixUI_Font_Bigger" FaceName="Segoe UI" Size="10" />
+        </UI>
+
+        <!-- ======================================================== -->
+        <!-- Wizard Images                                            -->
+        <!-- ======================================================== -->
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.ResourcesDir)\dialog.bmp" />
+        <Binary Id="WixUIBannerBmp" SourceFile="$(var.ResourcesDir)\banner.bmp" />
+        <Binary Id="EPMS.ico" SourceFile="$(var.ResourcesDir)\logo.ico" />
+    </Fragment>
+</Wix>

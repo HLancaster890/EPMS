@@ -1,0 +1,179 @@
+{
+  "server": {
+    "bind_address": "{{BIND_ADDRESS}}",
+    "port": {{PORT}},
+    "domain": "{{DOMAIN}}",
+    "ssl_mode": "{{SSL_MODE}}",
+    "ssl_cert_path": "C:\\ProgramData\\EPMS\\Certs\\epms-server.pfx",
+    "ssl_cert_password": "{{SSL_CERT_PASSWORD}}",
+    "cors_origins": ["*"],
+    "log_level": "info",
+    "log_retention_days": 30,
+    "max_request_size_mb": 50,
+    "request_timeout_seconds": 60,
+    "shutdown_timeout_seconds": 30,
+    "enable_swagger": false
+  },
+  "database": {
+    "host": "{{DB_HOST}}",
+    "port": {{DB_PORT}},
+    "name": "epms",
+    "user": "postgres",
+    "password": "{{DB_PASSWORD}}",
+    "max_connections": 100,
+    "pool_size": 20,
+    "command_timeout_seconds": 60,
+    "enable_audit_log": true,
+    "connection_retry_count": 5,
+    "connection_retry_delay_ms": 2000,
+    "auto_migrate": true
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "password": "{{REDIS_PASSWORD}}",
+    "db": 0,
+    "ssl": false,
+    "connection_timeout_ms": 5000,
+    "retry_count": 3,
+    "retry_delay_ms": 1000,
+    "prefix": "epms:"
+  },
+  "nats": {
+    "url": "nats://localhost:4222",
+    "user": "epms",
+    "password": "{{NATS_PASSWORD}}",
+    "max_reconnect": 10,
+    "reconnect_wait_ms": 2000,
+    "enable_jetstream": true,
+    "stream_name": "EPMS_EVENTS",
+    "subjects": ["epms.heartbeat", "epms.activity", "epms.browser", "epms.editor", "epms.metrics"]
+  },
+  "auth": {
+    "jwt_access_token_expiry_minutes": 15,
+    "jwt_refresh_token_expiry_days": 7,
+    "jwt_secret": "{{JWT_SECRET}}",
+    "mfa_enabled": false,
+    "mfa_issuer": "EPMS Enterprise Server",
+    "session_timeout_minutes": 480,
+    "max_concurrent_sessions": 3,
+    "lockout_threshold": 5,
+    "lockout_duration_minutes": 15,
+    "password_min_length": 12,
+    "password_require_uppercase": true,
+    "password_require_lowercase": true,
+    "password_require_digit": true,
+    "password_require_special": true,
+    "enrollment_token": "{{ENROLLMENT_TOKEN}}"
+  },
+  "services": {
+    "api": {
+      "port": 8000,
+      "workers": 4,
+      "enabled": true,
+      "rate_limit_per_minute": 1000,
+      "rate_limit_burst": 100
+    },
+    "analytics": {
+      "port": 8001,
+      "workers": 2,
+      "enabled": true,
+      "aggregation_interval_minutes": 5,
+      "score_cache_ttl_minutes": 15,
+      "trend_calculation_days": 30
+    },
+    "reporting": {
+      "port": 8002,
+      "workers": 2,
+      "enabled": true,
+      "output_dir": "{{INSTALL_PATH}}\\data\\reports",
+      "max_report_age_days": 365,
+      "max_concurrent_generations": 3,
+      "formats": ["pdf", "csv", "xlsx", "html", "json"]
+    },
+    "notifications": {
+      "port": 8003,
+      "workers": 2,
+      "enabled": true,
+      "smtp_host": "",
+      "smtp_port": 587,
+      "smtp_user": "",
+      "smtp_password": "",
+      "smtp_use_tls": true,
+      "from_address": "noreply@epms.local",
+      "push_gcm_key": ""
+    },
+    "event_processor": {
+      "port": 8004,
+      "workers": 4,
+      "enabled": true,
+      "batch_size": 1000,
+      "flush_interval_ms": 1000,
+      "offline_replay_enabled": true,
+      "max_queue_size": 100000,
+      "dedup_window_seconds": 5
+    },
+    "agent_gateway": {
+      "port": 8005,
+      "enabled": true,
+      "max_connections": 10000,
+      "heartbeat_timeout_seconds": 60,
+      "rate_limit_per_agent": 100,
+      "require_auth": true,
+      "enable_websocket": true,
+      "ws_ping_interval_seconds": 30
+    }
+  },
+  "monitoring": {
+    "metrics_enabled": true,
+    "metrics_port": 9090,
+    "health_check_interval_seconds": 30,
+    "enable_prometheus": true,
+    "enable_grafana_loki_logging": false,
+    "enable_open_telemetry": false
+  },
+  "agent": {
+    "offline_cache_hours": 24,
+    "data_retention_days": 90,
+    "auto_update_enabled": true,
+    "update_check_interval_hours": 6,
+    "update_download_url": "",
+    "enforce_policies": true,
+    "policy_poll_interval_seconds": 300
+  },
+  "browser_monitoring": {
+    "enabled": true,
+    "supported_browsers": ["chrome", "edge", "firefox", "brave"],
+    "url_blacklist": [],
+    "url_whitelist": [],
+    "collect_page_titles": true,
+    "collect_full_url": true,
+    "max_url_length": 2048,
+    "sampling_interval_seconds": 5
+  },
+  "editor_monitoring": {
+    "enabled": true,
+    "supported_editors": [
+      "Code.exe", "devenv.exe", "cursor.exe", "windsurf.exe",
+      "pycharm64.exe", "idea64.exe", "studio64.exe", "eclipse.exe",
+      "notepad++.exe", "sublime_text.exe"
+    ],
+    "collect_file_names": true,
+    "collect_full_paths": false,
+    "collect_project_names": true,
+    "sampling_interval_seconds": 5
+  },
+  "features": {
+    "dashboard_enabled": true,
+    "reports_enabled": true,
+    "analytics_enabled": true,
+    "alerts_enabled": true,
+    "scheduling_enabled": false,
+    "screenshot_capture": false,
+    "keystroke_logging": false,
+    "remote_control": false,
+    "software_inventory": true,
+    "hardware_inventory": true,
+    "remote_desktop": false
+  }
+}

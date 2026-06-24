@@ -1,0 +1,30 @@
+[Version]
+Class=IEXPRESS
+SEDVersion=3
+[Options]
+PackagePurpose=InstallApp
+ShowInstallProgramWindow=2
+HideExtractAnimation=1
+UseLongFileName=1
+InsideCompressed=1
+CAB_FixedSize=0
+CAB_MaxSize=0
+Contracted=0
+Compress=9
+KeepCompressed=0
+CheckIfDOS=0
+[SourceFiles]
+SourceFiles=.\
+[SourceFiles0]
+%FILE0%=CLIENT\Scripts\install-agent-service.ps1
+%FILE1%=CLIENT\Scripts\uninstall-agent-service.ps1
+%FILE2%=CLIENT\EPMS_Agent.exe
+%FILE3%=CLIENT\EPMS_Gateway.exe
+%FILE4%=CLIENT\agent.json
+[DestinationLocations]
+BasePath=%TEMP%\EPMS_Test
+[Strings]
+InstallProgram= powershell.exe -ExecutionPolicy Bypass -File ".\install-agent-service.ps1" -Silent -InstallDir "%ProgramFiles%\EPMS\Agent"
+UninstallProgram= powershell.exe -ExecutionPolicy Bypass -File ".\uninstall-agent-service.ps1" -Silent
+DisplayLicense=
+DisplayFinished=

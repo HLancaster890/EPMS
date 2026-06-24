@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  EPMS Agent Client — Shared Variables Include
+-->
+<Include>
+    <?define ProductVersion         = "1.0.0.0" ?>
+    <?define ProductName            = "EPMS Agent Client" ?>
+    <?define Manufacturer           = "EPMS Inc" ?>
+    <?define UpgradeCode            = "B8E2F7A1-9C3D-4E5F-B6A7-8C9D0E1F2A34" ?>
+
+    <!-- Ports -->
+    <?define Port_AgentGateway      = "8005" ?>
+    <?define Port_HTTPS             = "443" ?>
+</Include>

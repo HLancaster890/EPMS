@@ -1,0 +1,18 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8000,
+    "use_ssl": false,
+    "api_key": "epms-dev-key-2024"
+  },
+  "monitoring": {
+    "enabled": true,
+    "heartbeat_interval_seconds": 10,
+    "system_info_interval_seconds": 60,
+    "activity_monitor_interval_seconds": 5,
+    "afk_timeout_minutes": 5
+  },
+  "display_name": "Development Machine",
+  "auto_start": true,
+  "agent_id": ""
+}

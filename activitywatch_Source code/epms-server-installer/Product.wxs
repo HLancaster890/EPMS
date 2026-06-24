@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Enterprise Server — Main Product Definition
+  Copyright (c) 2026 EPMS Inc. All rights reserved.
+-->
+<Wix 
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:fw="http://wixtoolset.org/schemas/v4/wxs/firewall"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+    <!-- Pull in shared variables -->
+    <?include Variables.wxi ?>
+
+    <Package
+        Name="$(var.ProductName)"
+        Manufacturer="$(var.Manufacturer)"
+        Version="$(var.ProductVersion)"
+        UpgradeCode="$(var.UpgradeCode)"
+        Scope="perMachine"
+        Compressed="yes">
+
+        <!-- Summary Information -->
+        <SummaryInformation
+            Description="EPMS Enterprise Productivity Management System Server"
+            Keywords="productivity;monitoring;analytics;endpoint;management"
+            Manufacturer="$(var.Manufacturer)" />
+
+        <!-- Major upgrade configuration -->
+        <!-- Schedule afterInstallExecute: removes old product AFTER new files are installed,
+             minimizing service downtime during upgrade. InstallInitialize would remove old
+             files first, leaving services without binaries between InstallFiles and the upgrade action. -->
+        <MajorUpgrade
+            DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed. Please uninstall it first."
+            AllowSameVersionUpgrades="yes"
+            Schedule="afterInstallExecute"
+            Disallow="no"
+            IgnoreLanguage="yes"
+            RemoveFeatures="all" />
+
+        <!-- Media configuration (single CAB embedded in MSI) -->
+        <Media Id="1" Cabinet="EPMS.cab" EmbedCab="yes" CompressionLevel="high" />
+
+        <!-- Launch conditions -->
+        <Launch Condition="VersionNT64" Message="$(var.ProductName) requires a 64-bit operating system." />
+        <Launch Condition="(VersionNT &gt;= 1000)" Message="$(var.ProductName) requires Windows 10 / Server 2016 or later." />
+        <Launch Condition="Privileged" Message="You must be an administrator to install $(var.ProductName)." />
+
+        <!-- Target directory structure -->
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="MANUFACTURERFOLDER" Name="$(var.Manufacturer)">
+                <Directory Id="INSTALLFOLDER" Name="EPMS Server">
+                    <!-- Binaries -->
+                    <Directory Id="BINFOLDER" Name="bin">
+                        <Directory Id="SERVICESFOLDER" Name="services" />
+                        <Directory Id="TOOLSFOLDER" Name="tools" />
+                    </Directory>
+                    <!-- Configuration -->
+                    <Directory Id="CONFIGFOLDER" Name="config" />
+                    <!-- Data directory -->
+                    <Directory Id="DATAFOLDER" Name="data" />
+                    <!-- Logs -->
+                    <Directory Id="LOGFOLDER" Name="logs" />
+                    <!-- Web UI static files -->
+                    <Directory Id="WEBUIFOLDER" Name="web-ui" />
+                    <!-- NSSM service wrapper -->
+                    <Directory Id="NSSMFOLDER" Name="nssm" />
+                    <!-- Certificates -->
+                    <Directory Id="CERTFOLDER" Name="certs" />
+                    <!-- Updates staging -->
+                    <Directory Id="UPDATEFOLDER" Name="updates" />
+                    <!-- SQL migration scripts -->
+                    <Directory Id="SQLFOLDER" Name="sql" />
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+
+        <!-- ProgramData directory for runtime data -->
+        <StandardDirectory Id="CommonAppDataFolder">
+            <Directory Id="EPMSDATAFOLDER" Name="EPMS">
+                <Directory Id="EPMSLOGFOLDER" Name="Logs" />
+                <Directory Id="EPMSCERTFOLDER" Name="Certs" />
+                <Directory Id="EPMSBACKUPFOLDER" Name="Backups" />
+            </Directory>
+        </StandardDirectory>
+
+        <!-- Install necessary Windows features -->
+        <Feature Id="EPMS_Server" Title="EPMS Server" Level="1" Display="expand" ConfigurableDirectory="INSTALLFOLDER">
+            <Feature Id="CoreServices" Title="Core Services" Level="1" Description="EPMS API and Event Processing services">
+                <ComponentGroupRef Id="CoreBinaries" />
+                <ComponentGroupRef Id="NSSMServiceSetup" />
+                <ComponentGroupRef Id="ServiceRecoveryConfig" />
+                <ComponentGroupRef Id="APIService" />
+                <ComponentGroupRef Id="EventProcessorService" />
+            </Feature>
+
+            <Feature Id="AnalyticsServices" Title="Analytics &amp; Reporting" Level="2" Description="Analytics, Reporting, and Notification services">
+                <ComponentGroupRef Id="AnalyticsService" />
+                <ComponentGroupRef Id="ReportingService" />
+                <ComponentGroupRef Id="NotificationService" />
+            </Feature>
+
+            <Feature Id="AgentGateway" Title="Agent Gateway" Level="2" Description="WebSocket gateway for agent communication">
+                <ComponentGroupRef Id="AgentGatewayService" />
+            </Feature>
+
+            <Feature Id="Database" Title="PostgreSQL Database" Level="1" Description="Embedded PostgreSQL database engine">
+                <ComponentGroupRef Id="PostgreSQLSetup" />
+            </Feature>
+
+            <Feature Id="RedisCache" Title="Redis Cache" Level="2" Description="Redis in-memory cache">
+                <ComponentGroupRef Id="RedisSetup" />
+            </Feature>
+
+            <Feature Id="NATSMessageBus" Title="NATS Message Bus" Level="2" Description="NATS event streaming bus">
+                <ComponentGroupRef Id="NATSSetup" />
+            </Feature>
+
+            <Feature Id="WebUI" Title="Web Management Portal" Level="1" Description="Browser-based administration interface">
+                <ComponentGroupRef Id="WebUIFiles" />
+            </Feature>
+
+            <Feature Id="FirewallRules" Title="Windows Firewall Rules" Level="1" Description="Configure Windows Firewall exceptions">
+                <ComponentGroupRef Id="FirewallRules" />
+            </Feature>
+
+            <Feature Id="Configuration" Title="Configuration Files" Level="1" Description="Server configuration templates">
+                <ComponentGroupRef Id="ConfigFiles" />
+                <ComponentGroupRef Id="SQLScripts" />
+            </Feature>
+        </Feature>
+
+        <!-- Property persistence (Secure=yes prevents values from appearing in MSI logs) -->
+        <Property Id="EPMS_PORT" Value="443" Secure="yes" />
+        <Property Id="EPMS_DB_PORT" Value="5432" Secure="yes" />
+        <Property Id="EPMS_REDIS_PORT" Value="6379" Secure="yes" />
+        <Property Id="EPMS_NATS_PORT" Value="4222" Secure="yes" />
+        <Property Id="EPMS_SSL_MODE" Value="self-signed" Secure="yes" />
+        <Property Id="EPMS_AUTO_START_SERVICES" Value="1" />
+        <Property Id="EPMS_INSTALL_POSTGRESQL" Value="1" />
+        <Property Id="EPMS_INSTALL_TYPE" Value="express" />
+        <Property Id="EPMS_DB_PASSWORD" Secure="yes" />
+        <Property Id="EPMS_DB_HOST" Value="localhost" Secure="yes" />
+        <Property Id="EPMS_ADMIN_EMAIL" Value="admin@epms.local" Secure="yes" />
+        <Property Id="EPMS_ADMIN_PASSWORD" Secure="yes" />
+        <Property Id="EPMS_ORGANIZATION" Value="Default" Secure="yes" />
+        <Property Id="EPMS_BIND_ADDRESS" Value="0.0.0.0" Secure="yes" />
+        <Property Id="EPMS_DOMAIN" Secure="yes" />
+        <Property Id="INSTALLFOLDER" Secure="yes" />
+        <InstallExecuteSequence>
+            <!-- Save install properties for deferred actions -->
+            <Custom Action="SaveInstallProperties" Before="InstallNSSMServices" Condition="NOT Installed OR REINSTALL" />
+
+            <!-- NSSM service registration (replaces ServiceInstall) -->
+            <Custom Action="InstallNSSMServices" After="InstallFiles" Condition="NOT Installed OR REINSTALL" />
+
+            <!-- Remove services on uninstall -->
+            <Custom Action="RemoveNSSMServices" After="RemoveFiles" Condition="REMOVE ~= &quot;ALL&quot;" />
+
+            <!-- Database setup custom actions -->
+            <Custom Action="InstallPostgreSQL" After="InstallNSSMServices" Condition="EPMS_INSTALL_POSTGRESQL = 1 AND NOT Installed" />
+            <Custom Action="CreateEPMSDatabase" After="InstallPostgreSQL" Condition="NOT Installed" />
+            <Custom Action="RunDatabaseMigrations" After="CreateEPMSDatabase" Condition="NOT Installed" />
+
+            <!-- SSL certificate setup -->
+            <Custom Action="GenerateSelfSignedCert" After="RunDatabaseMigrations" Condition='EPMS_SSL_MODE = "self-signed" AND NOT Installed' />
+
+            <!-- Administrator account creation -->
+            <Custom Action="CreateAdminAccount" After="GenerateSelfSignedCert" Condition="NOT Installed" />
+
+            <!-- Configuration file generation -->
+            <Custom Action="GenerateAppSettings" After="CreateAdminAccount" Condition="NOT Installed" />
+
+            <!-- Health validation -->
+            <Custom Action="ValidateInstallation" After="GenerateAppSettings" Condition="NOT Installed" />
+        </InstallExecuteSequence>
+
+        <!-- UI sequence -->
+        <UIRef Id="EPMS_InstallUI" />
+        <UIRef Id="WixUI_ErrorProgressText" />
+
+        <!-- Property validation -->
+        <Property Id="WIX_ACCOUNT_LOCALSYSTEM" Value="NT AUTHORITY\SYSTEM" />
+        <Property Id="WIX_ACCOUNT_NETWORKSERVICE" Value="NT AUTHORITY\NETWORKSERVICE" />
+
+        <!-- Icon -->
+        <Icon Id="EPMS.ico" SourceFile="$(var.ResourcesDir)\logo.ico" />
+        <Property Id="ARPPRODUCTICON" Value="EPMS.ico" />
+    </Package>
+</Wix>

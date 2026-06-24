@@ -1,0 +1,121 @@
+# =============================================================
+# EPMS Enterprise Server — Logging Configuration
+# Structured logging setup for all EPMS services
+# =============================================================
+
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  json:
+    class: pythonjsonlogger.jsonlogger.JsonFormatter
+    format: "%(asctime)s %(levelname)s %(name)s %(message)s"
+    datefmt: "%Y-%m-%dT%H:%M:%S%z"
+
+  standard:
+    format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+  detailed:
+    format: "%(asctime)s [%(levelname)s] %(name)s (%(filename)s:%(lineno)d): %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: standard
+    stream: ext://sys.stdout
+
+  console_debug:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: detailed
+    stream: ext://sys.stdout
+
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: json
+    filename: "{{LOG_PATH}}/{{SERVICE_NAME}}.log"
+    maxBytes: 104857600
+    backupCount: 10
+    encoding: utf-8
+
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: WARNING
+    formatter: json
+    filename: "{{LOG_PATH}}/{{SERVICE_NAME}}_error.log"
+    maxBytes: 104857600
+    backupCount: 10
+    encoding: utf-8
+
+  audit:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: "{{LOG_PATH}}/audit.log"
+    maxBytes: 104857600
+    backupCount: 30
+    encoding: utf-8
+
+loggers:
+  epms:
+    level: DEBUG
+    handlers: [console, file, error_file]
+    propagate: false
+
+  epms.api:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+
+  epms.analytics:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+
+  epms.reporting:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+
+  epms.notifications:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+
+  epms.event_processor:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+
+  epms.gateway:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+
+  epms.audit:
+    level: INFO
+    handlers: [audit]
+    propagate: false
+
+  uvicorn:
+    level: WARNING
+    handlers: [console, error_file]
+    propagate: false
+
+  uvicorn.access:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+  sqlalchemy:
+    level: WARNING
+    handlers: [error_file]
+    propagate: false
+
+root:
+  level: WARNING
+  handlers: [console, error_file]

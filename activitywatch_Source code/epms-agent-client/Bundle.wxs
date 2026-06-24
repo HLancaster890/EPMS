@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Agent Client — Burn Bootstrapper Bundle
+  No prerequisites needed since PyInstaller bundles Python and all dependencies.
+  The bundle wraps the agent MSI into a single setup executable.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+
+    <?include Variables.wxi ?>
+
+    <Bundle
+        Name="$(var.ProductName)"
+        Version="$(var.ProductVersion)"
+        Manufacturer="$(var.Manufacturer)"
+        UpgradeCode="$(var.UpgradeCode)"
+        IconSourceFile="$(var.ResourcesDir)\\logo.ico"
+        DisableModify="yes"
+        DisableRemove="no">
+
+        <!-- Bootstrapper Application -->
+        <BootstrapperApplication Name="WixStandardBootstrapperApplication"
+            bal:Theme="rtfLicense"
+            bal:LicenseFile="$(var.ResourcesDir)\\license.rtf" />
+
+        <!-- ============================================================ -->
+        <!-- Chain: Single package (no prerequisites needed)               -->
+        <!-- ============================================================ -->
+        <Chain>
+            <MsiPackage
+                Id="EPMS_Agent_MSI"
+                DisplayName="$(var.ProductName)"
+                SourceFile="EPMS_Agent_Core.msi"
+                Vital="yes"
+                Compressed="yes"
+                Cache="keep"
+                Visible="yes"
+                Permanent="no" />
+        </Chain>
+    </Bundle>
+</Wix>

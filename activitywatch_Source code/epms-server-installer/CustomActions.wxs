@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Enterprise Server — Custom Action Definitions
+  Deferred custom actions for database setup, SSL, admin creation, and health validation.
+  References managed code in EPMS.CustomActions.dll (C# DTF project).
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+    <?include Variables.wxi ?>
+
+    <Fragment>
+        <!-- Custom action binary (compiled from CustomActions C# project) -->
+        <Binary Id="EPMS_CustomActions" SourceFile="$(var.CustomActions.TargetDir)\EPMS.CustomActions.CA.dll" />
+
+        <!-- ============================================================ -->
+        <!-- Service Installation Actions (NSSM)                          -->
+        <!-- ============================================================ -->
+
+        <!-- Register all EPMS services via NSSM -->
+        <CustomAction Id="InstallNSSMServices"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="InstallNSSMServices"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />
+
+        <!-- Remove all EPMS services on uninstall -->
+        <CustomAction Id="RemoveNSSMServices"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="RemoveNSSMServices"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />
+
+        <!-- ============================================================ -->
+        <!-- Database Setup Actions                                       -->
+        <!-- ============================================================ -->
+
+        <!-- Install PostgreSQL (embedded) -->
+        <CustomAction Id="InstallPostgreSQL"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="InstallPostgreSQL"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />
+
+        <!-- Create EPMS database -->
+        <CustomAction Id="CreateEPMSDatabase"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="CreateDatabase"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />
+
+        <!-- Run database migrations -->
+        <CustomAction Id="RunDatabaseMigrations"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="RunMigrations"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />
+
+        <!-- ============================================================ -->
+        <!-- SSL Certificate Actions                                      -->
+        <!-- ============================================================ -->
+
+        <!-- Generate self-signed certificate -->
+        <CustomAction Id="GenerateSelfSignedCert"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="GenerateSelfSignedCert"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />            <!-- Import existing certificate (stub - implemented in admin UI) -->
+
+        <!-- ============================================================ -->
+        <!-- Administrator Account Actions                                -->
+        <!-- ============================================================ -->
+
+        <!-- Create initial admin account -->
+        <CustomAction Id="CreateAdminAccount"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="CreateAdminAccount"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />
+
+        <!-- ============================================================ -->
+        <!-- Configuration Actions                                        -->
+        <!-- ============================================================ -->
+
+        <!-- Generate appsettings.json from template -->
+        <CustomAction Id="GenerateAppSettings"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="GenerateConfiguration"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />
+
+        <!-- ============================================================ -->
+        <!-- Validation Actions                                           -->
+        <!-- ============================================================ -->
+
+        <!-- Validate installation health -->
+        <CustomAction Id="ValidateInstallation"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="ValidateHealth"
+            Execute="deferred"
+            Impersonate="no"
+            Return="check" />
+
+        <!-- Rollback support for all deferred actions -->
+        <CustomAction Id="RollbackInstallPostgreSQL"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="RollbackPostgreSQL"
+            Execute="rollback"
+            Impersonate="no"
+            Return="ignore" />
+
+        <CustomAction Id="RollbackCreateDatabase"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="RollbackDatabase"
+            Execute="rollback"
+            Impersonate="no"
+            Return="ignore" />
+
+        <!-- ============================================================ -->
+        <!-- UI-Related Immediate Actions                                 -->
+        <!-- ============================================================ -->
+
+        <!-- Validate server configuration before proceeding -->
+        <CustomAction Id="ValidateServerConfig"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="ValidateConfig"
+            Execute="immediate"
+            Return="check" />
+
+        <!-- Save entered UI properties to registry for use by deferred actions -->
+        <CustomAction Id="SaveInstallProperties"
+            BinaryRef="EPMS_CustomActions"
+            DllEntry="SaveProperties"
+            Execute="immediate"
+            Return="check" />
+    </Fragment>
+</Wix>

@@ -1,0 +1,97 @@
+# =============================================================
+# EPMS Enterprise Server — PostgreSQL Configuration
+# For use with embedded PostgreSQL 16
+# =============================================================
+
+# Database connection
+listen_addresses = 'localhost'
+port = {{PG_PORT}}
+max_connections = 200
+superuser_reserved_connections = 10
+
+# Memory settings
+shared_buffers = 256MB
+effective_cache_size = 1GB
+work_mem = 8MB
+maintenance_work_mem = 128MB
+huge_pages = try
+
+# Write-Ahead Log
+wal_level = replica
+wal_buffers = 16MB
+wal_writer_delay = 200ms
+commit_delay = 0
+commit_siblings = 5
+
+# Replication
+max_wal_senders = 5
+wal_keep_size = 1024
+
+# Query tuning
+random_page_cost = 1.1
+effective_io_concurrency = 200
+cpu_tuple_cost = 0.01
+cpu_index_tuple_cost = 0.005
+cpu_operator_cost = 0.0025
+parallel_setup_cost = 1000
+parallel_tuple_cost = 0.1
+min_parallel_table_scan_size = 8MB
+max_parallel_workers_per_gather = 4
+max_parallel_workers = 8
+max_parallel_maintenance_workers = 4
+
+# Query planning
+default_statistics_target = 100
+from_collapse_limit = 8
+join_collapse_limit = 8
+
+# Logging
+log_destination = 'stderr'
+logging_collector = on
+log_directory = '{{LOG_PATH}}'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_file_mode = 0600
+log_rotation_age = 1440
+log_rotation_size = 100MB
+log_truncate_on_rotation = on
+log_min_duration_statement = 2000
+log_checkpoints = on
+log_connections = off
+log_disconnections = off
+log_lock_waits = on
+log_temp_files = 0
+log_autovacuum_min_duration = 0
+
+# Autovacuum
+autovacuum = on
+autovacuum_max_workers = 4
+autovacuum_naptime = 1min
+autovacuum_vacuum_threshold = 50
+autovacuum_analyze_threshold = 50
+autovacuum_vacuum_scale_factor = 0.2
+autovacuum_analyze_scale_factor = 0.1
+
+# Statistics
+track_activities = on
+track_counts = on
+track_io_timing = on
+track_functions = none
+track_wal_io_timing = on
+compute_query_id = auto
+
+# SSL
+ssl = on
+ssl_cert_file = '{{CERT_PATH}}\\epms-server.crt'
+ssl_key_file = '{{CERT_PATH}}\\epms-server.key'
+
+# Timezone
+timezone = 'UTC'
+lc_messages = 'English_United States.1252'
+lc_monetary = 'English_United States.1252'
+lc_numeric = 'English_United States.1252'
+lc_time = 'English_United States.1252'
+
+# Performance
+jit = on
+max_locks_per_transaction = 64
+max_pred_locks_per_transaction = 64

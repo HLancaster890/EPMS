@@ -1,0 +1,82 @@
+<Project Sdk="WixToolset.Sdk/5.0.0">
+  <PropertyGroup>
+    <Name>EPMS Enterprise Server</Name>
+    <ProductName>EPMS Enterprise Server</ProductName>
+    <Manufacturer>EPMS Inc.</Manufacturer>
+    <Version>1.0.0.0</Version>
+    <UpgradeCode>F226B8F4-3244-46E6-901D-0CE8035423E4</UpgradeCode>
+    <OutputType>Package</OutputType>
+    <OutputName>EPMS_Server_Setup_v$(Version)</OutputName>
+    <OutputPath>$(SolutionDir)dist\</OutputPath>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <SuppressValidation>false</SuppressValidation>
+    <Pedantic>false</Pedantic>
+    <CabinetCreationThreadCount>4</CabinetCreationThreadCount>
+    <EmbedCab>yes</EmbedCab>
+    <CopyOutputSymbolsToOutput>false</CopyOutputSymbolsToOutput>
+    <CopyOutputContentsToOutput>false</CopyOutputContentsToOutput>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>Configuration=Release</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>Configuration=Debug</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Compiler/Linker Variables -->
+  <ItemGroup>
+    <!-- Build-time variables passed to .wxs files as $(var.VariableName) -->
+    <BindInputPaths Include="$(SolutionDir)Resources\" />
+
+    <!-- Define constants used in .wxs files -->
+    <DefineConstants>
+      ProductVersion=$(Version);
+      ProductName=EPMS Enterprise Server;
+      Manufacturer=EPMS Inc.;
+      ResourcesDir=$(SolutionDir)Resources\;
+      ConfigDir=$(SolutionDir)Config\;
+    </DefineConstants>
+
+    <!-- Localized strings -->
+    <EmbeddedResource Include="Resources\Strings.en-us.wxl" />
+  </ItemGroup>
+
+  <!-- WiX Extensions (NuGet packages) -->
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Firewall.wixext" Version="5.0.0" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.0" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.0" />
+    <PackageReference Include="WixToolset.Bal.wixext" Version="5.0.0" />
+  </ItemGroup>
+
+  <!-- Source Files -->
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+    <Compile Include="Services.wxs" />
+    <Compile Include="Firewall.wxs" />
+    <Compile Include="Database.wxs" />
+    <Compile Include="CustomActions.wxs" />
+    <Compile Include="UI.wxs" />
+    <Compile Include="Bundle.wxs" />
+    <Compile Include="Variables.wxi" />
+  </ItemGroup>
+
+  <!-- Custom action project references -->
+  <ItemGroup>
+    <ProjectReference Include="CustomActions\EPMS.CustomActions.csproj" />
+  </ItemGroup>
+
+  <!-- Harvest directories -->
+  <ItemGroup>
+    <HarvestDirectory Include="$(SolutionDir)Resources\Binaries\">
+      <ComponentGroupName>Binaries</ComponentGroupName>
+      <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+      <SuppressAll>true</SuppressAll>
+    </HarvestDirectory>
+    <HarvestDirectory Include="$(SolutionDir)Resources\Config\">
+      <ComponentGroupName>ConfigFiles</ComponentGroupName>
+      <DirectoryRefId>CONFIGFOLDER</DirectoryRefId>
+    </HarvestDirectory>
+  </ItemGroup>
+</Project>

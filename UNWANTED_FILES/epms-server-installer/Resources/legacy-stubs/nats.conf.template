@@ -1,0 +1,58 @@
+# =============================================================
+# EPMS Enterprise Server — NATS Configuration
+# For use with embedded NATS server
+# =============================================================
+
+# Port
+port: {{NATS_PORT}}
+
+# Logging
+logtime: true
+debug: false
+trace: false
+
+# Log file
+log_file: "{{LOG_PATH}}\\nats.log"
+
+# PID file
+pid_file: "{{DATA_PATH}}\\nats\\nats.pid"
+
+# Client configuration
+max_connections: 1000
+max_payload: 1048576
+max_pending: 32768
+write_deadline: "10s"
+
+# Authentication
+authorization: {
+  user: "{{NATS_USER}}"
+  password: "{{NATS_PASSWORD}}"
+  timeout: 5.0
+}
+
+# JetStream configuration
+jetstream: {
+  store_dir: "{{DATA_PATH}}\\nats\\jetstream"
+  max_memory_store: 1073741824
+  max_file_store: 10737418240
+  domain: "epms"
+}
+
+# Cluster configuration (for multi-server deployments)
+# cluster: {
+#   name: "epms"
+#   listen: "0.0.0.0:6222"
+#   routes: [
+#     "nats://{{NATS_USER}}:{{NATS_PASSWORD}}@node2:6222"
+#   ]
+# }
+
+# Stream configuration
+accounts: {
+  EPMS: {
+    users: [
+      {user: "{{NATS_USER}}", password: "{{NATS_PASSWORD}}"}
+    ]
+    jetstream: enabled
+  }
+}

@@ -1,0 +1,70 @@
+# =============================================================
+# EPMS Enterprise Server — Redis Configuration
+# For use with embedded Redis server
+# =============================================================
+
+# Port
+port {{REDIS_PORT}}
+
+# Bind to localhost only for security
+bind 127.0.0.1
+
+# Protected mode
+protected-mode yes
+
+# Daemonize
+daemonize no
+supervised no
+
+# Logging
+loglevel notice
+logfile "{{LOG_PATH}}\\redis.log"
+
+# Database
+databases 16
+
+# Persistence
+save 900 1
+save 300 10
+save 60 10000
+
+# RDB configuration
+rdbcompression yes
+rdbchecksum yes
+dbfilename dump.rdb
+dir {{DATA_PATH}}\\redis
+
+# Memory management
+maxmemory 512mb
+maxmemory-policy allkeys-lru
+maxmemory-samples 5
+
+# Connection
+timeout 0
+tcp-keepalive 300
+tcp-backlog 511
+
+# Security (requirepass is set via command line or env)
+# requirepass {{REDIS_PASSWORD}}
+
+# AOF
+appendonly yes
+appendfilename "appendonly.aof"
+appendfsync everysec
+no-appendfsync-on-rewrite no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+aof-load-truncated yes
+aof-use-rdb-preamble yes
+
+# Slow log
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+
+# Latency monitoring
+latency-monitor-threshold 100
+
+# Client output buffer limits
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit replica 256mb 64mb 60
+client-output-buffer-limit pubsub 32mb 8mb 60

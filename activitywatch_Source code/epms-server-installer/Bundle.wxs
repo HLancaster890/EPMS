@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Enterprise Server — Burn Bootstrapper Bundle
+  Handles prerequisite installation: .NET Runtime, VC++ Redist, and PostgreSQL.
+  The bundle offers a single .exe that chains all installers with proper detection
+  to skip already-installed prerequisites.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+    <?include Variables.wxi ?>
+
+    <Bundle
+        Name="$(var.ProductName)"
+        Version="$(var.ProductVersion)"
+        Manufacturer="$(var.Manufacturer)"
+        UpgradeCode="$(var.UpgradeCode)"
+        IconSourceFile="$(var.ResourcesDir)\logo.ico"
+        DisableModify="yes"
+        DisableRemove="yes">
+
+        <!-- Bootstrapper Application -->
+        <BootstrapperApplication Name="WixStandardBootstrapperApplication"
+            bal:Theme="rtfLicense"
+            bal:LicenseFile="$(var.ResourcesDir)\license.rtf"
+            bal:ThemeFile="$(var.ResourcesDir)\theme.xml"
+            bal:LocalizationFile="$(var.ResourcesDir)\Strings.en-us.wxl" />
+
+        <!-- ============================================================ -->
+        <!-- Prerequisite detection searches                              -->
+        <!-- ============================================================ -->
+        <!-- Detect any installed .NET 8.x runtime via subkey presence -->
+        <util:RegistrySearch Id="DotNetRuntimeSearch"
+            Variable="DotNetRuntimeInstalled"
+            Root="HKLM"
+            Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.NETCore.App"
+            Result="exists" />
+
+        <util:RegistrySearch Id="VCppRedistSearch"
+            Variable="VCppRedistInstalled"
+            Root="HKLM"
+            Key="SOFTWARE\Microsoft\VisualStudio\17.0\VC\Runtimes\x64"
+            Value="Version"
+            Result="value" />
+
+        <!-- ============================================================ -->
+        <!-- Chain: All packages to install in order                       -->
+        <!-- ============================================================ -->
+        <Chain>
+            <!-- .NET 8 Runtime (required for FastAPI services) -->
+            <ExePackage
+                Id="dotnet8_runtime"
+                Name="dotnet8_runtime"
+                DisplayName="Microsoft .NET 8.0.28 Runtime (x64)"
+                DownloadUrl="https://builds.dotnet.microsoft.com/dotnet/Runtime/8.0.28/dotnet-runtime-8.0.28-win-x64.exe"
+                InstallArguments="/install /quiet /norestart"
+                UninstallArguments="/uninstall /quiet /norestart"
+                DetectCondition="DotNetRuntimeInstalled"
+                PerMachine="yes"
+                Permanent="yes"
+                Vital="yes"
+                Compressed="no" />
+
+            <!-- Visual C++ 2022 Redistributable (for PyInstaller binaries) -->
+            <ExePackage
+                Id="vcpp_2022_x64"
+                Name="vcpp_2022_x64"
+                DisplayName="Microsoft Visual C++ 2022 Redistributable (x64)"
+                DownloadUrl="https://aka.ms/vs/17/release/vc_redist.x64.exe"
+                InstallArguments="/install /quiet /norestart"
+                UninstallArguments="/uninstall /quiet /norestart"
+                DetectCondition="VCppRedistInstalled"
+                PerMachine="yes"
+                Permanent="yes"
+                Vital="yes"
+                Compressed="no" />
+
+            <!-- EPMS Server MSI -->
+            <MsiPackage
+                Id="EPMS_Server_MSI"
+                DisplayName="$(var.ProductName)"
+                SourceFile="EPMS_Server_Core.msi"
+                Vital="yes"
+                Compressed="yes"
+                Cache="keep"
+                Visible="yes"
+                Permanent="no">
+
+                <!-- Forward bundle variables to MSI properties -->
+                <MsiProperty Name="EPMS_INSTALL_TYPE" Value="[EPMS_INSTALL_TYPE]" />
+                <MsiProperty Name="EPMS_PORT" Value="[EPMS_PORT]" />
+                <MsiProperty Name="EPMS_BIND_ADDRESS" Value="[EPMS_BIND_ADDRESS]" />
+                <MsiProperty Name="EPMS_DOMAIN" Value="[EPMS_DOMAIN]" />
+                <MsiProperty Name="EPMS_SSL_MODE" Value="[EPMS_SSL_MODE]" />
+                <MsiProperty Name="EPMS_INSTALL_POSTGRESQL" Value="[EPMS_INSTALL_POSTGRESQL]" />
+                <MsiProperty Name="EPMS_DB_HOST" Value="[EPMS_DB_HOST]" />
+                <MsiProperty Name="EPMS_DB_PORT" Value="[EPMS_DB_PORT]" />
+                <MsiProperty Name="EPMS_DB_PASSWORD" Value="[EPMS_DB_PASSWORD]" />
+                <MsiProperty Name="EPMS_ADMIN_EMAIL" Value="[EPMS_ADMIN_EMAIL]" />
+                <MsiProperty Name="EPMS_ADMIN_PASSWORD" Value="[EPMS_ADMIN_PASSWORD]" />
+                <MsiProperty Name="EPMS_ADMIN_CONFIRM" Value="[EPMS_ADMIN_PASSWORD]" />
+                <MsiProperty Name="EPMS_ORGANIZATION" Value="[EPMS_ORGANIZATION]" />
+            </MsiPackage>
+        </Chain>
+    </Bundle>
+</Wix>

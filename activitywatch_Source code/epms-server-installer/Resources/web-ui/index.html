@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPMS Enterprise Server — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-hover: #253248;
+  --bg-input: #0f172a;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #334155;
+  --accent: #6366f1;
+  --accent-hover: #818cf8;
+  --accent-light: rgba(99, 102, 241, 0.15);
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  --chart-1: #6366f1;
+  --chart-2: #22c55e;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #8b5cf6;
+  --chart-6: #06b6d4;
+  --sidebar-width: 260px;
+  --header-height: 64px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px 0 rgba(0,0,0,0.3), 0 1px 2px -1px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.4);
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Layout */
+.app-container { display: flex; min-height: 100vh; }
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  transition: transform var(--transition);
+}
+.sidebar-logo {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.sidebar-logo .logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--chart-5));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: white; font-weight: 700;
+}
+.sidebar-logo .logo-text { font-size: 16px; font-weight: 700; }
+.sidebar-logo .logo-text span { color: var(--text-secondary); font-weight: 400; }
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-section { margin-bottom: 24px; }
+.nav-section-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted);
+  padding: 0 12px; margin-bottom: 8px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  color: var(--text-secondary); text-decoration: none;
+  cursor: pointer; transition: all var(--transition);
+  font-size: 14px; font-weight: 500;
+}
+.nav-item:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.nav-item.active { background: var(--accent-light); color: var(--accent); }
+.nav-item i { width: 20px; text-align: center; font-size: 16px; }
+.nav-item .badge {
+  margin-left: auto;
+  background: var(--danger); color: white;
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 10px;
+  min-width: 20px; text-align: center;
+}
+.sidebar-footer {
+  padding: 16px 12px;
+  border-top: 1px solid var(--border);
+}
+.server-info {
+  font-size: 12px; color: var(--text-muted);
+  padding: 0 12px; line-height: 1.6;
+}
+.server-info .label { font-weight: 500; color: var(--text-secondary); }
+
+/* Main Content */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1; min-height: 100vh;
+}
+.header {
+  height: var(--header-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky; top: 0; z-index: 50;
+}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-left h1 { font-size: 20px; font-weight: 600; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-search {
+  position: relative;
+}
+.header-search input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px 8px 36px;
+  color: var(--text-primary);
+  font-size: 13px; width: 280px;
+  outline: none; transition: border var(--transition);
+}
+.header-search input:focus { border-color: var(--accent); }
+.header-search i {
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted); font-size: 14px;
+}
+.header-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: background var(--transition);
+}
+.header-user:hover { background: var(--bg-card-hover); }
+.header-user .avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--chart-5));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: white;
+}
+.header-user .user-info { line-height: 1.3; }
+.header-user .user-name { font-size: 13px; font-weight: 500; }
+.header-user .user-role { font-size: 11px; color: var(--text-muted); }
+.notif-btn {
+  position: relative;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.notif-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.notif-btn .notif-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px;
+  background: var(--danger); border-radius: 50%;
+  border: 2px solid var(--bg-secondary);
+}
+
+/* Page Content */
+.page-content { padding: 24px 32px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* Stat Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.stat-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.stat-card .stat-header {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 12px;
+}
+.stat-card .stat-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.stat-card .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.stat-card .stat-value {
+  font-size: 28px; font-weight: 700;
+  margin-bottom: 4px;
+}
+.stat-card .stat-change {
+  font-size: 12px;
+  display: flex; align-items: center; gap: 4px;
+}
+.stat-card .stat-change.up { color: var(--success); }
+.stat-card .stat-change.down { color: var(--danger); }
+.stat-card .stat-change.neutral { color: var(--text-muted); }
+
+/* Charts Grid */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px; margin-bottom: 24px;
+}
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-card .chart-header {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 16px;
+}
+.chart-card .chart-title { font-size: 15px; font-weight: 600; }
+.chart-card .chart-actions { display: flex; gap: 8px; }
+.chart-card canvas { max-height: 300px; }
+.chart-card .chart-period {
+  display: flex; gap: 4px;
+  background: var(--bg-primary);
+  border-radius: 6px; padding: 2px;
+}
+.chart-period button {
+  padding: 4px 12px;
+  border: none; background: transparent;
+  color: var(--text-muted); font-size: 12px;
+  font-weight: 500; cursor: pointer;
+  border-radius: 4px; transition: all var(--transition);
+}
+.chart-period button:hover { color: var(--text-primary); }
+.chart-period button.active { background: var(--accent); color: white; }
+
+/* Device Table */
+.table-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.table-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.table-header h3 { font-size: 15px; font-weight: 600; }
+.table-header .table-actions { display: flex; gap: 8px; }
+table {
+  width: 100%; border-collapse: collapse;
+}
+th {
+  text-align: left; padding: 12px 20px;
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+td {
+  padding: 14px 20px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+tr:hover td { background: var(--bg-card-hover); }
+tr:last-child td { border-bottom: none; }
+.status-badge {
+  display: inline-flex; align-items: center;
+  gap: 6px; padding: 4px 10px;
+  border-radius: 20px; font-size: 12px;
+  font-weight: 500;
+}
+.status-badge.online { background: rgba(34,197,94,0.15); color: var(--success); }
+.status-badge.offline { background: rgba(239,68,68,0.15); color: var(--danger); }
+.status-badge.idle { background: rgba(245,158,11,0.15); color: var(--warning); }
+.status-badge i { font-size: 8px; }
+
+/* List Items */
+.list-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.list-item {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.list-item:last-child { border-bottom: none; }
+.list-item .item-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-right: 12px;
+}
+.list-item .item-info { flex: 1; }
+.list-item .item-title { font-size: 14px; font-weight: 500; }
+.list-item .item-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.list-item .item-value { font-size: 14px; font-weight: 600; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost {
+  background: transparent; color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon {
+  width: 36px; height: 36px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+}
+
+/* Login Page */
+.login-page {
+  display: flex; min-height: 100vh;
+  align-items: center; justify-content: center;
+  background: var(--bg-primary);
+  position: relative;
+}
+.login-bg {
+  position: absolute; inset: 0;
+  overflow: hidden; pointer-events: none;
+}
+.login-bg .orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); opacity: 0.15;
+}
+.login-bg .orb-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; right: -200px; }
+.login-bg .orb-2 { width: 400px; height: 400px; background: var(--chart-5); bottom: -100px; left: -100px; }
+.login-box {
+  position: relative; z-index: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+  width: 100%; max-width: 420px;
+  box-shadow: var(--shadow-lg);
+}
+.login-box .login-logo {
+  text-align: center; margin-bottom: 32px;
+}
+.login-box .login-logo .logo-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 24px; font-weight: 700;
+}
+.login-box .login-logo .logo-badge .badge-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--accent), var(--chart-5));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: white;
+}
+.login-box .login-logo p { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
+.form-group { margin-bottom: 20px; }
+.form-group label {
+  display: block; font-size: 13px; font-weight: 500;
+  margin-bottom: 6px; color: var(--text-secondary);
+}
+.form-group input {
+  width: 100%; padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px; outline: none;
+  transition: border var(--transition);
+}
+.form-group input:focus { border-color: var(--accent); }
+.form-group input::placeholder { color: var(--text-muted); }
+.form-options {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 20px;
+  font-size: 13px;
+}
+.form-options label { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); cursor: pointer; }
+.form-options a { color: var(--accent); text-decoration: none; }
+.form-options a:hover { text-decoration: underline; }
+.login-box .btn-primary { width: 100%; padding: 12px; justify-content: center; font-size: 14px; }
+.login-error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: var(--danger);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; margin-bottom: 16px;
+  display: none;
+}
+
+/* Alerts list */
+.alert-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.alert-item:last-child { border-bottom: none; }
+.alert-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.alert-icon.critical { background: rgba(239,68,68,0.15); color: var(--danger); }
+.alert-icon.warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+.alert-icon.info { background: rgba(59,130,246,0.15); color: var(--info); }
+.alert-content { flex: 1; }
+.alert-title { font-size: 13px; font-weight: 500; }
+.alert-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.alert-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .charts-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .page-content { padding: 16px; }
+  .header { padding: 0 16px; }
+  .header-search input { width: 160px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .header-search { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="login-page" id="loginPage">
+  <div class="login-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-badge">
+        <div class="badge-icon">EP</div>
+        <span>EPMS<div style="font-weight:400;font-size:16px;color:var(--text-muted)">Enterprise Server</div></span>
+      </div>
+      <p>Sign in to the management dashboard</p>
+    </div>
+    <div class="login-error" id="loginError">Invalid credentials. Please try again.</div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="admin@epms.local" value="admin@epms.local" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" value="Admin123!@#" autocomplete="current-password">
+      </div>
+      <div class="form-options">
+        <label><input type="checkbox" checked> Remember me</label>
+        <a href="#">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div class="app-container" id="appContainer" style="display:none">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">EP</div>
+      <div class="logo-text">EPMS <span>Server</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <a class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a class="nav-item" data-page="devices" onclick="navigateTo('devices')"><i class="fas fa-desktop"></i> Devices</a>
+        <a class="nav-item" data-page="users" onclick="navigateTo('users')"><i class="fas fa-users"></i> Users</a>
+        <a class="nav-item" data-page="activity" onclick="navigateTo('activity')"><i class="fas fa-chart-line"></i> Activity</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Monitoring</div>
+        <a class="nav-item" data-page="browsers" onclick="navigateTo('browsers')"><i class="fas fa-globe"></i> Browser Usage</a>
+        <a class="nav-item" data-page="editors" onclick="navigateTo('editors')"><i class="fas fa-code"></i> Editor Usage</a>
+        <a class="nav-item" data-page="apps" onclick="navigateTo('apps')"><i class="fas fa-cube"></i> Applications</a>
+        <a class="nav-item" data-page="health" onclick="navigateTo('health')"><i class="fas fa-heartbeat"></i> System Health</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Analytics</div>
+        <a class="nav-item" data-page="productivity" onclick="navigateTo('productivity')"><i class="fas fa-tachometer-alt"></i> Productivity</a>
+        <a class="nav-item" data-page="reports" onclick="navigateTo('reports')"><i class="fas fa-file-alt"></i> Reports</a>
+        <a class="nav-item" data-page="alerts" onclick="navigateTo('alerts')"><i class="fas fa-bell"></i> Alerts <span class="badge" id="alertBadge">3</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Administration</div>
+        <a class="nav-item" data-page="policies" onclick="navigateTo('policies')"><i class="fas fa-shield-alt"></i> Policies</a>
+        <a class="nav-item" data-page="settings" onclick="navigateTo('settings')"><i class="fas fa-cog"></i> Settings</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="server-info">
+        <div><span class="label">Server:</span> <span id="serverStatus">Connected</span></div>
+        <div><span class="label">Version:</span> 1.0.0</div>
+        <div><span class="label" id="serverUptime">Uptime: 0h</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="btn btn-icon btn-ghost" onclick="toggleSidebar()" style="display:none"><i class="fas fa-bars"></i></button>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <div class="header-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search devices, users, or apps..." oninput="filterTable(this.value)">
+        </div>
+        <button class="notif-btn" onclick="navigateTo('alerts')"><i class="fas fa-bell"></i><span class="notif-dot"></span></button>
+        <div class="header-user">
+          <div class="avatar">A</div>
+          <div class="user-info d-none d-md-block">
+            <div class="user-name">Administrator</div>
+            <div class="user-role">Super Admin</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="logout()" style="margin-left:8px"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" id="dashStats">
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(99,102,241,0.15);color:var(--accent)"><i class="fas fa-desktop"></i></div><span class="stat-label">Total Devices</span></div><div class="stat-value" id="statTotalDevices">—</div><div class="stat-change neutral"><i class="fas fa-minus-circle"></i> Loading...</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(34,197,94,0.15);color:var(--success)"><i class="fas fa-wifi"></i></div><span class="stat-label">Online Now</span></div><div class="stat-value" id="statOnlineDevices">—</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> <span id="statOnlineChange">0%</span></div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--warning)"><i class="fas fa-clock"></i></div><span class="stat-label">Active Today</span></div><div class="stat-value" id="statActiveToday">—</div><div class="stat-change neutral"><i class="fas fa-minus-circle"></i> <span id="statActiveChange">—</span></div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(99,102,241,0.15);color:var(--accent)"><i class="fas fa-chart-pie"></i></div><span class="stat-label">Avg Productivity</span></div><div class="stat-value" id="statProductivity">—</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> <span id="statProductivityChange">—</span></div></div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Activity Overview</div><div class="chart-period"><button class="active" onclick="setChartPeriod(this,'activity')">7d</button><button onclick="setChartPeriod(this,'activity')">30d</button><button onclick="setChartPeriod(this,'activity')">90d</button></div></div><canvas id="activityChart"></canvas></div>
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Device Status</div></div><canvas id="deviceStatusChart" style="max-height:240px"></canvas></div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Productivity Trend</div></div><canvas id="productivityChart"></canvas></div>
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Top Applications</div></div><canvas id="topAppsChart"></canvas></div>
+        </div>
+        <div class="table-container">
+          <div class="table-header"><h3>Recent Devices</h3><div class="table-actions"><button class="btn btn-ghost btn-sm" onclick="navigateTo('devices')"><i class="fas fa-external-link-alt"></i> View All</button></div></div>
+          <table><thead><tr><th>Device</th><th>User</th><th>Status</th><th>OS</th><th>Last Heartbeat</th><th>Productivity</th></tr></thead><tbody id="deviceTableBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- DEVICES PAGE -->
+      <div class="page" id="page-devices"><div class="table-container"><div class="table-header"><h3>All Devices <span class="text-muted" id="deviceCount">(0)</span></h3><div class="table-actions"><input type="text" placeholder="Filter devices..." style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text-primary);font-size:13px;outline:none" oninput="filterDevices(this.value)"><button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Export</button></div></div><table><thead><tr><th>Device Name</th><th>Hostname</th><th>Status</th><th>Agent Version</th><th>OS</th><th>Last Heartbeat</th><th>Uptime</th><th>Actions</th></tr></thead><tbody id="deviceTableFull"></tbody></table></div></div>
+
+      <!-- USERS PAGE -->
+      <div class="page" id="page-users">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(99,102,241,0.15);color:var(--accent)"><i class="fas fa-users"></i></div><span class="stat-label">Total Users</span></div><div class="stat-value">4</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(34,197,94,0.15);color:var(--success)"><i class="fas fa-user-check"></i></div><span class="stat-label">Active Users</span></div><div class="stat-value">3</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--warning)"><i class="fas fa-user-clock"></i></div><span class="stat-label">Online Now</span></div><div class="stat-value">2</div></div>
+        </div>
+        <div class="table-container"><table><thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Last Active</th><th>Devices</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table></div>
+      </div>
+
+      <!-- ACTIVITY PAGE -->
+      <div class="page" id="page-activity">
+        <div class="chart-card full"><div class="chart-header"><div class="chart-title">Real-time Activity Feed</div><div class="chart-period"><button class="active">Live</button><button>1h</button><button>24h</button></div></div><div id="activityFeed" style="max-height:600px;overflow-y:auto"></div></div>
+      </div>
+
+      <!-- BROWSERS PAGE -->
+      <div class="page" id="page-browsers">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(99,102,241,0.15);color:var(--accent)"><i class="fab fa-chrome"></i></div><span class="stat-label">Chrome</span></div><div class="stat-value">12</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 8% today</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(59,130,246,0.15);color:var(--info)"><i class="fab fa-edge"></i></div><span class="stat-label">Edge</span></div><div class="stat-value">5</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 3% today</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--warning)"><i class="fab fa-firefox-browser"></i></div><span class="stat-label">Firefox</span></div><div class="stat-value">3</div><div class="stat-change neutral"><i class="fas fa-minus-circle"></i> 0% today</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--chart-5)"><i class="fab fa-chrome"></i></div><span class="stat-label">Brave</span></div><div class="stat-value">2</div><div class="stat-change down"><i class="fas fa-arrow-down"></i> 2% today</div></div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Browser Time Distribution</div></div><canvas id="browserDistChart"></canvas></div>
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Top Domains</div></div><canvas id="topDomainsChart"></canvas></div>
+        </div>
+        <div class="table-container"><div class="table-header"><h3>Browser Activity</h3></div><table><thead><tr><th>User</th><th>Browser</th><th>Domain</th><th>Page Title</th><th>Duration</th><th>Status</th></tr></thead><tbody id="browserActivityBody"></tbody></table></div>
+      </div>
+
+      <!-- EDITORS PAGE -->
+      <div class="page" id="page-editors">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(59,130,246,0.15);color:var(--info)"><i class="fas fa-code"></i></div><span class="stat-label">VS Code</span></div><div class="stat-value">8</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--chart-5)"><i class="fas fa-layer-group"></i></div><span class="stat-label">Visual Studio</span></div><div class="stat-value">3</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(34,197,94,0.15);color:var(--success)"><i class="fas fa-terminal"></i></div><span class="stat-label">JetBrains</span></div><div class="stat-value">2</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--warning)"><i class="fas fa-pen"></i></div><span class="stat-label">Other Editors</span></div><div class="stat-value">4</div></div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Editor Usage (Hours)</div></div><canvas id="editorChart"></canvas></div>
+          <div class="chart-card"><div class="chart-header"><div class="chart-title">Languages</div></div><canvas id="languageChart"></canvas></div>
+        </div>
+        <div class="table-container"><div class="table-header"><h3>Active Editor Sessions</h3></div><table><thead><tr><th>User</th><th>Editor</th><th>Project</th><th>File</th><th>Language</th><th>Duration</th></tr></thead><tbody id="editorActivityBody"></tbody></table></div>
+      </div>
+
+      <!-- APPS PAGE -->
+      <div class="page" id="page-apps"><div class="chart-card full"><div class="chart-header"><div class="chart-title">Application Usage Breakdown</div></div><canvas id="appUsageChart"></canvas></div></div>
+
+      <!-- HEALTH PAGE -->
+      <div class="page" id="page-health">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:var(--success)"><i class="fas fa-database"></i></div><span class="stat-label">Database</span></div><div class="stat-value" style="color:var(--success)">Connected</div><div class="stat-change up">PostgreSQL 16</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:var(--success)"><i class="fas fa-bolt"></i></div><span class="stat-label">Redis</span></div><div class="stat-value" style="color:var(--success)">Connected</div><div class="stat-change up">Cache online</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:var(--success)"><i class="fas fa-exchange-alt"></i></div><span class="stat-label">NATS</span></div><div class="stat-value" style="color:var(--success)">Connected</div><div class="stat-change up">Message bus online</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:var(--info)"><i class="fas fa-server"></i></div><span class="stat-label">API Services</span></div><div class="stat-value">6/6</div><div class="stat-change up">All running</div></div>
+        </div>
+        <div class="list-card"><h3 style="margin-bottom:16px">Service Status</h3><div id="serviceStatusList"></div></div>
+      </div>
+
+      <!-- PRODUCTIVITY PAGE -->
+      <div class="page" id="page-productivity">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(34,197,94,0.15);color:var(--success)"><i class="fas fa-check-circle"></i></div><span class="stat-label">Productive</span></div><div class="stat-value" style="color:var(--success)">65%</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--warning)"><i class="fas fa-minus-circle"></i></div><span class="stat-label">Neutral</span></div><div class="stat-value" style="color:var(--warning)">20%</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(239,68,68,0.15);color:var(--danger)"><i class="fas fa-times-circle"></i></div><span class="stat-label">Distracting</span></div><div class="stat-value" style="color:var(--danger)">10%</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon" style="background:rgba(107,114,128,0.15);color:var(--text-muted)"><i class="fas fa-bed"></i></div><span class="stat-label">Idle</span></div><div class="stat-value">5%</div></div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card full"><div class="chart-header"><div class="chart-title">Productivity by Category</div></div><canvas id="prodCategoryChart"></canvas></div>
+        </div>
+        <div class="table-container"><div class="table-header"><h3>Daily Scores</h3></div><table><thead><tr><th>Date</th><th>Device</th><th>Score</th><th>Productive</th><th>Neutral</th><th>Distracting</th><th>Idle</th></tr></thead><tbody id="scoreTableBody"></tbody></table></div>
+      </div>
+
+      <!-- REPORTS PAGE -->
+      <div class="page" id="page-reports">
+        <div class="table-container">
+          <div class="table-header"><h3>Generated Reports</h3><div class="table-actions"><button class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Generate Report</button></div></div>
+          <table><thead><tr><th>Report</th><th>Type</th><th>Period</th><th>Format</th><th>Generated</th><th>Actions</th></tr></thead><tbody id="reportsTableBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ALERTS PAGE -->
+      <div class="page" id="page-alerts"><div class="list-card"><h3 style="margin-bottom:8px">Active Alerts</h3><p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Recent alerts and notifications from your monitored environment.</p><div id="alertsList"></div></div></div>
+
+      <!-- POLICIES PAGE -->
+      <div class="page" id="page-policies">
+        <div class="list-card"><h3 style="margin-bottom:16px">Monitoring Policies</h3>
+          <div class="list-item"><div class="item-icon" style="background:rgba(99,102,241,0.15);color:var(--accent)"><i class="fas fa-eye"></i></div><div class="item-info"><div class="item-title">Default Monitoring Policy</div><div class="item-subtitle">Standard monitoring configuration for all agents</div></div><div><span class="status-badge online"><i class="fas fa-circle"></i> Active</span></div></div>
+          <div class="list-item"><div class="item-icon" style="background:rgba(59,130,246,0.15);color:var(--info)"><i class="fas fa-globe"></i></div><div class="item-info"><div class="item-title">Browser Monitoring Policy</div><div class="item-subtitle">URL tracking, domain categorization, tab monitoring</div></div><div><span class="status-badge online"><i class="fas fa-circle"></i> Active</span></div></div>
+          <div class="list-item"><div class="item-icon" style="background:rgba(34,197,94,0.15);color:var(--success)"><i class="fas fa-code"></i></div><div class="item-info"><div class="item-title">Editor Monitoring Policy</div><div class="item-subtitle">IDE tracking, project monitoring, language detection</div></div><div><span class="status-badge online"><i class="fas fa-circle"></i> Active</span></div></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS PAGE -->
+      <div class="page" id="page-settings"><div class="list-card"><h3 style="margin-bottom:16px">Server Settings</h3><div id="settingsList"></div></div></div>
+    </div>
+  </main>
+</div>
+
+<script>
+// =============================================================
+// EPMS Dashboard — Application Logic
+// =============================================================
+
+// State
+let charts = {};
+let agents = [];
+let currentPage = 'dashboard';
+let isLoggedIn = false;
+let refreshInterval;
+let accessToken = localStorage.getItem('accessToken');
+let refreshToken = localStorage.getItem('refreshToken');
+let ws = null;
+let summaryCache = {};
+let activityCache = { events: [] };
+let devicesCache = { devices: [] };
+let productivityCache = [];
+let browserCache = { events: [] };
+let editorCache = { events: [] };
+let alertsCache = { alerts: [] };
+let reportsCache = { reports: [] };
+
+// API helper — relative URLs since dashboard is served by API service
+async function apiFetch(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+  const resp = await fetch(path, { ...options, headers });
+  if (resp.status === 401 && refreshToken) {
+    const refreshResp = await fetch('/api/v1/auth/refresh', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    if (refreshResp.ok) {
+      const data = await refreshResp.json();
+      accessToken = data.access_token;
+      refreshToken = data.refresh_token;
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      headers['Authorization'] = `Bearer ${accessToken}`;
+      return fetch(path, { ...options, headers });
+    }
+    logout();
+    throw new Error('Session expired');
+  }
+  return resp;
+}
+
+function connectWebSocket() {
+  if (ws) try { ws.close(); } catch(e) {}
+  if (!accessToken) return;
+  try {
+    ws = new WebSocket(`ws://${location.hostname}:8005/ws/dashboard?token=${accessToken}`);
+    ws.onopen = () => console.log('Dashboard WS connected');
+    ws.onmessage = (evt) => {
+      try {
+        const msg = JSON.parse(evt.data);
+        if (msg.type === 'heartbeat' || msg.type === 'agent_count_update') {
+          fetchSummary();
+        }
+        if (msg.type === 'agent_connected' || msg.type === 'agent_disconnected') {
+          fetchDevices();
+        }
+      } catch(e) {}
+    };
+    ws.onclose = () => { ws = null; setTimeout(connectWebSocket, 5000); };
+    ws.onerror = () => { ws = null; };
+  } catch(e) { setTimeout(connectWebSocket, 5000); }
+}
+
+async function fetchSummary() {
+  try {
+    const resp = await apiFetch('/api/v1/dashboard/summary');
+    if (resp.ok) summaryCache = await resp.json();
+  } catch(e) { console.warn('Failed to fetch summary:', e); }
+}
+
+async function fetchDevices() {
+  try {
+    const resp = await apiFetch('/api/v1/dashboard/devices');
+    if (resp.ok) { const d = await resp.json(); devicesCache = d; agents = d.devices || []; }
+  } catch(e) { console.warn('Failed to fetch devices:', e); }
+}
+
+async function fetchActivity() {
+  try {
+    const resp = await apiFetch('/api/v1/dashboard/activity?limit=50');
+    if (resp.ok) activityCache = await resp.json();
+  } catch(e) { console.warn('Failed to fetch activity:', e); }
+}
+
+async function fetchProductivity() {
+  try {
+    const resp = await apiFetch('/api/v1/analytics/productivity?days=7');
+    if (resp.ok) { const d = await resp.json(); productivityCache = d.data || []; }
+  } catch(e) { console.warn('Failed to fetch productivity:', e); }
+}
+
+async function fetchBrowserActivity() {
+  try {
+    const resp = await apiFetch('/api/v1/dashboard/browser-activity?limit=50');
+    if (resp.ok) browserCache = await resp.json();
+  } catch(e) { console.warn('Failed to fetch browser activity:', e); }
+}
+
+async function fetchEditorActivity() {
+  try {
+    const resp = await apiFetch('/api/v1/dashboard/editor-activity?limit=50');
+    if (resp.ok) editorCache = await resp.json();
+  } catch(e) { console.warn('Failed to fetch editor activity:', e); }
+}
+
+async function fetchAlerts() {
+  try {
+    const resp = await apiFetch('/api/v1/dashboard/alerts?limit=20');
+    if (resp.ok) alertsCache = await resp.json();
+  } catch(e) { console.warn('Failed to fetch alerts:', e); }
+}
+
+async function fetchReports() {
+  try {
+    const resp = await apiFetch('/api/v1/dashboard/reports?limit=20');
+    if (resp.ok) reportsCache = await resp.json();
+  } catch(e) { console.warn('Failed to fetch reports:', e); }
+}
+
+async function fetchAllData() {
+  await Promise.all([fetchSummary(), fetchDevices(), fetchActivity(), fetchProductivity()]);
+}
+
+// Login
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const errorEl = document.getElementById('loginError');
+  errorEl.style.display = 'none';
+  try {
+    const resp = await fetch('/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!resp.ok) { errorEl.style.display = 'block'; return; }
+    const data = await resp.json();
+    accessToken = data.access_token;
+    refreshToken = data.refresh_token;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    isLoggedIn = true;
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'flex';
+    initDashboard();
+  } catch(e) {
+    errorEl.style.display = 'block';
+  }
+});
+
+async function logout() {
+  try { await apiFetch('/api/v1/auth/logout', { method: 'POST' }); } catch(e) {}
+  if (ws) { ws.close(); ws = null; }
+  accessToken = null;
+  refreshToken = null;
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  isLoggedIn = false;
+  clearInterval(refreshInterval);
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('appContainer').style.display = 'none';
+}
+
+// Navigation
+function navigateTo(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+
+  const titles = { dashboard:'Dashboard', devices:'Devices', users:'Users', activity:'Activity',
+    browsers:'Browser Usage', editors:'Editor Usage', apps:'Applications', health:'System Health',
+    productivity:'Productivity', reports:'Reports', alerts:'Alerts', policies:'Policies', settings:'Settings' };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+
+  if (page === 'alerts') { document.getElementById('alertBadge').textContent = '0'; fetchAlerts().then(renderAlerts); }
+  if (page === 'browsers') fetchBrowserActivity().then(renderBrowserActivity);
+  if (page === 'editors') fetchEditorActivity().then(renderEditorActivity);
+  if (page === 'reports') fetchReports().then(renderReports);
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+// Chart helpers
+function createChart(id, type, labels, datasets, opts = {}) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return null;
+  if (charts[id]) { charts[id].destroy(); }
+  const defaults = {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Inter' }, boxWidth: 12, padding: 12 } } },
+    scales: {
+      x: { ticks: { color: '#64748b', font: { family: 'Inter' } }, grid: { color: 'rgba(51,65,85,0.5)' } },
+      y: { ticks: { color: '#64748b', font: { family: 'Inter' } }, grid: { color: 'rgba(51,65,85,0.5)' }, beginAtZero: true }
+    }
+  };
+  const config = Object.assign({}, defaults, opts);
+  charts[id] = new Chart(ctx, { type, data: { labels, datasets }, options: config });
+  return charts[id];
+}
+
+function setChartPeriod(btn, chartId) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function filterTable(query) {
+  document.querySelectorAll('table tbody tr').forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function filterDevices(query) {
+  const body = document.getElementById('deviceTableFull');
+  body.querySelectorAll('tr').forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function formatTime(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return d.toLocaleDateString();
+}
+
+function formatDuration(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+// Initialize dashboard
+async function initDashboard() {
+  await fetchAllData();
+  renderAll();
+  connectWebSocket();
+  refreshInterval = setInterval(async () => {
+    await fetchAllData();
+    await renderAll();
+  }, 15000);
+}
+
+async function renderAll() {
+  updateStats();
+  updateDeviceTable();
+  renderDevices();
+  renderUsers();
+  renderActivityFeed();
+  renderScores();
+  renderDashboardCharts();
+  renderSettings();
+  await renderServices();
+}
+
+function updateStats() {
+  const s = summaryCache;
+  document.getElementById('statTotalDevices').textContent = s.total_devices ?? '—';
+  document.getElementById('statOnlineDevices').textContent = s.online_devices ?? '—';
+  document.getElementById('statActiveToday').textContent = s.active_today ?? '—';
+  document.getElementById('statProductivity').textContent = `${s.average_productivity ?? '—'}%`;
+  document.getElementById('statOnlineChange').textContent = s.online_devices > 0 ? `${Math.round(s.online_devices / (s.total_devices || 1) * 100)}%` : '0%';
+}
+
+function updateDeviceTable() {
+  const tbody = document.getElementById('deviceTableBody');
+  const devices = (devicesCache.devices || []).slice(0, 5);
+  tbody.innerHTML = devices.map(d => {
+    const status = d.is_online ? 'online' : 'offline';
+    const hb = d.last_heartbeat ? formatTime(d.last_heartbeat) : '—';
+    return `<tr>
+      <td><strong>${d.name || d.id}</strong></td>
+      <td>${d.hostname || '—'}</td>
+      <td><span class="status-badge ${status}"><i class="fas fa-circle"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+      <td>${d.os || '—'}</td>
+      <td>${hb}</td>
+      <td><span style="color:var(--text-muted)">—</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDashboardCharts() {
+  const s = summaryCache;
+  const prodData = productivityCache;
+
+  // Activity chart from productivity data
+  const labels = prodData.length ? prodData.map(d => d.date.slice(5)) : ['No data'];
+  const productiveVals = prodData.length ? prodData.map(d => (d.productive_seconds / 3600).toFixed(1)) : [0];
+  const distractingVals = prodData.length ? prodData.map(d => (d.distracting_seconds / 3600).toFixed(1)) : [0];
+  const idleVals = prodData.length ? prodData.map(d => (d.idle_seconds / 3600).toFixed(1)) : [0];
+  createChart('activityChart', 'bar', labels, [
+    { label: 'Productive (hrs)', data: productiveVals, backgroundColor: 'rgba(34,197,94,0.7)', borderRadius: 4 },
+    { label: 'Distracting (hrs)', data: distractingVals, backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 4 },
+    { label: 'Idle (hrs)', data: idleVals, backgroundColor: 'rgba(107,114,128,0.7)', borderRadius: 4 },
+  ]);
+
+  // Device status doughnut
+  const online = s.online_devices || 0;
+  const offline = s.offline_devices || 0;
+  createChart('deviceStatusChart', 'doughnut', [], [
+    { data: [online, offline], backgroundColor: ['#22c55e','#ef4444'], borderWidth: 0, hoverOffset: 6 }
+  ], { cutout: '65%', plugins: { legend: { position: 'bottom' } } });
+
+  // Productivity trend
+  createChart('productivityChart', 'line', labels, [
+    { label: 'Score', data: prodData.map(d => d.score), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.4, pointRadius: 3 }
+  ]);
+
+  // Top apps (from activity events)
+  const apps = {};
+  (activityCache.events || []).forEach(e => {
+    const app = e.app || 'Unknown';
+    apps[app] = (apps[app] || 0) + 1;
+  });
+  const topApps = Object.entries(apps).sort((a,b) => b[1] - a[1]).slice(0, 6);
+  if (topApps.length) {
+    createChart('topAppsChart', 'doughnut', topApps.map(a => a[0]), [
+      { data: topApps.map(a => a[1]), backgroundColor: ['#3b82f6','#f59e0b','#22c55e','#6366f1','#8b5cf6','#06b6d4'], borderWidth: 0 }
+    ], { cutout: '55%' });
+  }
+}
+
+function renderDevices() {
+  const tbody = document.getElementById('deviceTableFull');
+  const devices = devicesCache.devices || [];
+  document.getElementById('deviceCount').textContent = `(${devices.length})`;
+  tbody.innerHTML = devices.map(d => {
+    const status = d.is_online ? 'online' : 'offline';
+    const hb = d.last_heartbeat ? formatTime(d.last_heartbeat) : '—';
+    return `<tr>
+      <td><strong>${d.name || d.id}</strong></td>
+      <td>${d.hostname || '—'}</td>
+      <td><span class="status-badge ${status}"><i class="fas fa-circle"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+      <td>${d.version || '—'}</td>
+      <td>${d.os || '—'}</td>
+      <td>${hb}</td>
+      <td>—</td>
+      <td><button class="btn btn-ghost btn-sm"><i class="fas fa-info-circle"></i></button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderUsers() {
+  const users = {};
+  (devicesCache.devices || []).forEach(d => { if (!users[d.id]) users[d.id] = d; });
+  const list = Object.values(users).slice(0, 10);
+  document.getElementById('usersTableBody').innerHTML = list.map(u => {
+    const status = u.is_online ? 'online' : 'offline';
+    const hb = u.last_heartbeat ? formatTime(u.last_heartbeat) : '—';
+    return `<tr>
+      <td><strong>${u.name || u.id}</strong></td>
+      <td>${u.hostname || ''}@epms.local</td>
+      <td>User</td>
+      <td><span class="status-badge ${status}"><i class="fas fa-circle"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+      <td>${hb}</td>
+      <td>1</td>
+      <td><button class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderActivityFeed() {
+  const events = activityCache.events || [];
+  document.getElementById('activityFeed').innerHTML = events.slice(0, 25).map(e => {
+    const isAfk = e.is_afk ? 'bg-secondary' : '';
+    const icon = e.is_afk ? 'bed' : 'desktop';
+    const color = e.is_afk ? 'var(--text-muted)' : 'var(--info)';
+    return `<div class="list-item">
+      <div class="item-icon" style="background:rgba(59,130,246,0.15);color:${color}"><i class="fas fa-${icon}"></i></div>
+      <div class="item-info">
+        <div class="item-title"><strong>${e.user}</strong> ${e.action}</div>
+        <div class="item-subtitle">${formatTime(e.time)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBrowserActivity() {
+  const events = browserCache.events || [];
+  const browserCounts = {};
+  events.forEach(e => { browserCounts[e.browser] = (browserCounts[e.browser] || 0) + 1; });
+  const bLabels = Object.keys(browserCounts);
+  createChart('browserDistChart', 'doughnut', bLabels.length ? bLabels : ['No data'], [
+    { data: bLabels.length ? bLabels.map(b => browserCounts[b]) : [1], backgroundColor: ['#f59e0b','#3b82f6','#f97316','#8b5cf6','#22c55e','#ef4444'], borderWidth: 0 }
+  ], { cutout: '55%' });
+  const domainCounts = {};
+  events.forEach(e => { if (e.domain) domainCounts[e.domain] = (domainCounts[e.domain] || 0) + 1; });
+  const topDomains = Object.entries(domainCounts).sort((a,b) => b[1] - a[1]).slice(0, 10);
+  createChart('topDomainsChart', 'bar', topDomains.length ? topDomains.map(d => d[0]) : ['No data'], [
+    { data: topDomains.length ? topDomains.map(d => d[1]) : [0], backgroundColor: '#6366f1', borderRadius: 4 }
+  ]);
+  document.getElementById('browserActivityBody').innerHTML = events.length ? events.map(e => `
+    <tr><td>${e.user}</td><td>${e.browser}</td><td style="color:var(--accent)">${e.domain || '—'}</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.page_title || '—'}</td><td>${formatTime(e.timestamp)}</td><td><span class="status-badge ${e.is_productive ? 'online' : 'offline'}"><i class="fas fa-circle"></i> ${e.is_productive ? 'Productive' : 'Distracting'}</span></td></tr>
+  `).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No browser activity data</td></tr>';
+}
+
+function renderEditorActivity() {
+  const events = editorCache.events || [];
+  const editorCounts = {};
+  events.forEach(e => { editorCounts[e.editor] = (editorCounts[e.editor] || 0) + 1; });
+  const eLabels = Object.keys(editorCounts);
+  createChart('editorChart', 'bar', eLabels.length ? eLabels : ['No data'], [
+    { data: eLabels.length ? eLabels.map(ed => editorCounts[ed]) : [0], backgroundColor: ['#3b82f6','#8b5cf6','#22c55e','#06b6d4','#f59e0b','#ef4444','#6366f1','#f97316'], borderRadius: 4 }
+  ]);
+  const langCounts = {};
+  events.forEach(e => { if (e.language) langCounts[e.language] = (langCounts[e.language] || 0) + 1; });
+  const langLabels = Object.keys(langCounts);
+  createChart('languageChart', 'doughnut', langLabels.length ? langLabels : ['No data'], [
+    { data: langLabels.length ? langLabels.map(l => langCounts[l]) : [1], backgroundColor: ['#3178c6','#3572A5','#178600','#dea584','#b07219','#A97BFF','#f34b7d','#00ADD8'], borderWidth: 0 }
+  ], { cutout: '55%' });
+  document.getElementById('editorActivityBody').innerHTML = events.length ? events.map(e => `
+    <tr><td>${e.user}</td><td>${e.editor}</td><td>${e.project || '—'}</td><td>${e.file || '—'}</td><td>${e.language || '—'}</td><td>${formatTime(e.timestamp)}</td></tr>
+  `).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No editor activity data</td></tr>';
+}
+
+function renderAlerts() {
+  const alerts = alertsCache.alerts || [];
+  document.getElementById('alertsList').innerHTML = alerts.length ? alerts.map(a => {
+    const t = (a.severity || a.type || 'info').toLowerCase();
+    const icon = t === 'critical' ? 'exclamation-triangle' : t === 'warning' ? 'exclamation-circle' : 'info-circle';
+    return `<div class="alert-item"><div class="alert-icon ${t}"><i class="fas fa-${icon}"></i></div><div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-desc">${a.description || ''}</div><div class="alert-time"><i class="far fa-clock"></i> ${formatTime(a.time)}</div></div></div>`;
+  }).join('') : '<div style="text-align:center;padding:40px;color:var(--text-muted)"><i class="fas fa-check-circle" style="font-size:32px;margin-bottom:12px;display:block"></i>No active alerts</div>';
+}
+
+function renderReports() {
+  const reports = reportsCache.reports || [];
+  document.getElementById('reportsTableBody').innerHTML = reports.length ? reports.map(r => `
+    <tr><td><strong>${r.title}</strong></td><td>${r.type}</td><td>${r.date ? r.date.slice(0, 10) : '—'}</td><td><span class="status-badge online">${r.format}</span></td><td>${r.date ? new Date(r.date).toLocaleDateString() : '—'}</td><td><button class="btn btn-ghost btn-sm"><i class="fas fa-download"></i></button></td></tr>
+  `).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No reports generated</td></tr>';
+}
+
+function renderScores() {
+  const prodData = productivityCache;
+  if (!prodData.length) return;
+
+  // Category chart from latest day's data
+  const latest = prodData[prodData.length - 1];
+  const total = latest.productive_seconds + latest.neutral_seconds + latest.distracting_seconds + latest.idle_seconds || 1;
+  createChart('prodCategoryChart', 'doughnut', ['Productive','Neutral','Distracting','Idle'], [
+    { data: [
+      (latest.productive_seconds / total * 100).toFixed(1),
+      (latest.neutral_seconds / total * 100).toFixed(1),
+      (latest.distracting_seconds / total * 100).toFixed(1),
+      (latest.idle_seconds / total * 100).toFixed(1),
+    ], backgroundColor: ['#22c55e','#3b82f6','#ef4444','#64748b'], borderWidth: 0 }
+  ], { cutout: '55%' });
+
+  // Score table
+  document.getElementById('scoreTableBody').innerHTML = prodData.slice(-14).reverse().map(d => {
+    const score = d.score || 0;
+    const color = score > 70 ? 'var(--success)' : score > 50 ? 'var(--warning)' : 'var(--danger)';
+    return `<tr>
+      <td>${d.date}</td>
+      <td>Organization</td>
+      <td><span style="color:${color}">${score}%</span></td>
+      <td>${Math.round(d.productive_seconds / 60)}m</td>
+      <td>${Math.round(d.neutral_seconds / 60)}m</td>
+      <td>${Math.round(d.distracting_seconds / 60)}m</td>
+      <td>${Math.round(d.idle_seconds / 60)}m</td>
+    </tr>`;
+  }).join('');
+}
+
+async function renderServices() {
+  const services = [
+    { name: 'EPMS API Service', port: 8000 },
+    { name: 'EPMS Analytics Service', port: 8001 },
+    { name: 'EPMS Reporting Service', port: 8002 },
+    { name: 'EPMS Notifications Service', port: 8003 },
+    { name: 'EPMS Event Processor', port: 8004 },
+    { name: 'EPMS Agent Gateway', port: 8005 },
+  ];
+  const results = await Promise.allSettled(services.map(s =>
+    fetch(`http://${location.hostname}:${s.port}/health`, { signal: AbortSignal.timeout(3000) })
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null)
+  ));
+  document.getElementById('serviceStatusList').innerHTML = services.map((s, i) => {
+    const health = results[i].status === 'fulfilled' ? results[i].value : null;
+    const status = health?.status === 'healthy' ? 'Running' : 'Offline';
+    const cls = status === 'Running' ? 'online' : 'offline';
+    return `<div class="list-item">
+      <div class="item-info">
+        <div class="item-title">${s.name}</div>
+        <div class="item-subtitle">Port ${s.port}</div>
+      </div>
+      <span class="status-badge ${cls}"><i class="fas fa-circle"></i> ${status}</span>
+    </div>`;
+  }).join('');
+  const running = results.filter(r => r.status === 'fulfilled' && r.value?.status === 'healthy').length;
+  document.querySelector('#page-health .stats-grid .stat-card:last-child .stat-value').textContent = `${running}/6`;
+
+  // Update infrastructure status from API health
+  const apiHealth = results[0].status === 'fulfilled' ? results[0].value : null;
+  if (apiHealth) {
+    const setCardStatus = (index, ok) => {
+      const card = document.querySelectorAll('#page-health .stats-grid .stat-card')[index];
+      if (!card) return;
+      const val = card.querySelector('.stat-value');
+      const chg = card.querySelector('.stat-change');
+      if (val) { val.textContent = ok ? 'Connected' : 'Disconnected'; val.style.color = ok ? 'var(--success)' : 'var(--danger)'; }
+      if (chg) { chg.textContent = ok ? 'Online' : 'Offline'; chg.className = `stat-change ${ok ? 'up' : 'down'}`; }
+    };
+    setCardStatus(0, apiHealth.database === 'connected');
+    setCardStatus(1, apiHealth.redis === 'connected');
+    setCardStatus(2, apiHealth.nats === 'connected');
+  }
+}
+
+// Auto-authenticate on page load if token exists
+if (accessToken && refreshToken) {
+  (async () => {
+    try {
+      const resp = await apiFetch('/api/v1/dashboard/summary');
+      if (resp.ok) {
+        isLoggedIn = true;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'flex';
+        initDashboard();
+      }
+    } catch(e) {}
+  })();
+}
+</script>
+</body>
+</html>

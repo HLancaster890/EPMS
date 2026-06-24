@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  EPMS Enterprise Server — Shared Variables Include
+-->
+<Include>
+    <?define ProductVersion         = "1.0.0.0" ?>
+    <?define ProductName            = "EPMS Enterprise Server" ?>
+    <?define Manufacturer           = "EPMS Inc" ?>
+    <?define UpgradeCode            = "F226B8F4-3244-46E6-901D-0CE8035423E4" ?>
+    
+    <!-- Service names -->
+    <?define Service_Api            = "EPMS-API" ?>
+    <?define Service_Analytics      = "EPMS-Analytics" ?>
+    <?define Service_Reporting      = "EPMS-Reporting" ?>
+    <?define Service_Notifications  = "EPMS-Notifications" ?>
+    <?define Service_EventProcessor = "EPMS-EventProcessor" ?>
+    <?define Service_AgentGateway   = "EPMS-AgentGateway" ?>
+    
+    <!-- Display names -->
+    <?define Display_Api            = "EPMS REST API Service" ?>
+    <?define Display_Analytics      = "EPMS Analytics Service" ?>
+    <?define Display_Reporting      = "EPMS Reporting Service" ?>
+    <?define Display_Notifications  = "EPMS Notification Service" ?>
+    <?define Display_EventProcessor = "EPMS Event Processing Service" ?>
+    <?define Display_AgentGateway   = "EPMS Agent Gateway Service" ?>
+    
+    <!-- Ports -->
+    <?define Port_Api               = "8000" ?>
+    <?define Port_Analytics         = "8001" ?>
+    <?define Port_Reporting         = "8002" ?>
+    <?define Port_Notifications     = "8003" ?>
+    <?define Port_EventProcessor    = "8004" ?>
+    <?define Port_AgentGateway      = "8005" ?>
+    <?define Port_HTTPS             = "443" ?>
+    <?define Port_PostgreSQL        = "5432" ?>
+    <?define Port_Redis             = "6379" ?>
+    <?define Port_NATS              = "4222" ?>
+    
+    <!-- Service descriptions -->
+    <?define Desc_Api               = "FastAPI-based REST API gateway for the EPMS Enterprise Productivity Management System" ?>
+    <?define Desc_Analytics         = "Productivity analytics, aggregation, and trend computation service" ?>
+    <?define Desc_Reporting         = "Enterprise report generation engine supporting PDF, Excel, and CSV output" ?>
+    <?define Desc_Notifications     = "Multi-channel notification delivery service supporting email, in-app, and push" ?>
+    <?define Desc_EventProcessor    = "High-throughput event ingestion and processing pipeline with offline replay" ?>
+    <?define Desc_AgentGateway      = "mTLS-secured WebSocket gateway for real-time agent communication" ?>
+</Include>

@@ -1,0 +1,337 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --sidebar: #0f1119;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #6366f1;
+  --card: #1e293b;
+  --card-border: #334155;
+  --border: #1e293b;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --muted: #64748b;
+  --accent: #818cf8;
+  --gradient-from: #6366f1;
+  --gradient-to: #8b5cf6;
+  --chart-line: #6366f1;
+  --chart-point: #818cf8;
+  --table-row-hover: #334155;
+  --input-bg: #0f172a;
+  --input-border: #334155;
+}
+
+[data-theme="midnight-indigo"] {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --sidebar: #0f1119;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #6366f1;
+  --card: #1e293b;
+  --card-border: #334155;
+  --border: #1e293b;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --muted: #64748b;
+  --accent: #818cf8;
+  --gradient-from: #6366f1;
+  --gradient-to: #8b5cf6;
+  --chart-line: #6366f1;
+  --chart-point: #818cf8;
+  --table-row-hover: #334155;
+  --input-bg: #0f172a;
+  --input-border: #334155;
+}
+
+[data-theme="emerald-city"] {
+  --background: #0d1f1a;
+  --foreground: #e0f2e9;
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --sidebar: #081410;
+  --sidebar-hover: #134e3f;
+  --sidebar-active: #10b981;
+  --card: #134e3f;
+  --card-border: #1a6b55;
+  --border: #1a6b55;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --muted: #6b8f7f;
+  --accent: #34d399;
+  --gradient-from: #10b981;
+  --gradient-to: #059669;
+  --chart-line: #10b981;
+  --chart-point: #34d399;
+  --table-row-hover: #1a6b55;
+  --input-bg: #0d1f1a;
+  --input-border: #1a6b55;
+}
+
+[data-theme="sunset-ember"] {
+  --background: #1a1210;
+  --foreground: #f5e6d3;
+  --primary: #f59e0b;
+  --primary-hover: #d97706;
+  --sidebar: #140e0c;
+  --sidebar-hover: #292524;
+  --sidebar-active: #f59e0b;
+  --card: #292524;
+  --card-border: #44403c;
+  --border: #44403c;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --muted: #a8a29e;
+  --accent: #fbbf24;
+  --gradient-from: #f59e0b;
+  --gradient-to: #ef4444;
+  --chart-line: #f59e0b;
+  --chart-point: #fbbf24;
+  --table-row-hover: #44403c;
+  --input-bg: #1a1210;
+  --input-border: #44403c;
+}
+
+[data-theme="ocean-depths"] {
+  --background: #0c1929;
+  --foreground: #dbeafe;
+  --primary: #0ea5e9;
+  --primary-hover: #0284c7;
+  --sidebar: #081220;
+  --sidebar-hover: #0c4a6e;
+  --sidebar-active: #0ea5e9;
+  --card: #0c4a6e;
+  --card-border: #155e75;
+  --border: #155e75;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --muted: #5b8ba8;
+  --accent: #38bdf8;
+  --gradient-from: #0ea5e9;
+  --gradient-to: #06b6d4;
+  --chart-line: #0ea5e9;
+  --chart-point: #38bdf8;
+  --table-row-hover: #155e75;
+  --input-bg: #0c1929;
+  --input-border: #155e75;
+}
+
+[data-theme="royal-purple"] {
+  --background: #140b1e;
+  --foreground: #ede9fe;
+  --primary: #8b5cf6;
+  --primary-hover: #7c3aed;
+  --sidebar: #0f0718;
+  --sidebar-hover: #2e1065;
+  --sidebar-active: #8b5cf6;
+  --card: #2e1065;
+  --card-border: #4c1d95;
+  --border: #4c1d95;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --muted: #7c6a9a;
+  --accent: #a78bfa;
+  --gradient-from: #8b5cf6;
+  --gradient-to: #6d28d9;
+  --chart-line: #8b5cf6;
+  --chart-point: #a78bfa;
+  --table-row-hover: #4c1d95;
+  --input-bg: #140b1e;
+  --input-border: #4c1d95;
+}
+
+[data-theme="forest-canopy"] {
+  --background: #0f1a12;
+  --foreground: #dcfce7;
+  --primary: #22c55e;
+  --primary-hover: #16a34a;
+  --sidebar: #0a140d;
+  --sidebar-hover: #14532d;
+  --sidebar-active: #22c55e;
+  --card: #14532d;
+  --card-border: #166534;
+  --border: #166534;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --muted: #6b8f72;
+  --accent: #4ade80;
+  --gradient-from: #22c55e;
+  --gradient-to: #16a34a;
+  --chart-line: #22c55e;
+  --chart-point: #4ade80;
+  --table-row-hover: #166534;
+  --input-bg: #0f1a12;
+  --input-border: #166534;
+}
+
+[data-theme="arctic-frost"] {
+  --background: #ecfdf5;
+  --foreground: #1e293b;
+  --primary: #06b6d4;
+  --primary-hover: #0891b2;
+  --sidebar: #0f172a;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #06b6d4;
+  --card: #ffffff;
+  --card-border: #e2e8f0;
+  --border: #e2e8f0;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --muted: #94a3b8;
+  --accent: #22d3ee;
+  --gradient-from: #06b6d4;
+  --gradient-to: #67e8f9;
+  --chart-line: #06b6d4;
+  --chart-point: #22d3ee;
+  --table-row-hover: #f1f5f9;
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+}
+
+[data-theme="graphite"] {
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+  --primary: #64748b;
+  --primary-hover: #475569;
+  --sidebar: #1e293b;
+  --sidebar-hover: #334155;
+  --sidebar-active: #64748b;
+  --card: #ffffff;
+  --card-border: #e2e8f0;
+  --border: #e2e8f0;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --muted: #94a3b8;
+  --accent: #94a3b8;
+  --gradient-from: #64748b;
+  --gradient-to: #94a3b8;
+  --chart-line: #64748b;
+  --chart-point: #94a3b8;
+  --table-row-hover: #f8fafc;
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-gradient-from: var(--gradient-from);
+  --color-gradient-to: var(--gradient-to);
+  --color-chart-line: var(--chart-line);
+  --color-chart-point: var(--chart-point);
+  --color-table-row-hover: var(--table-row-hover);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px var(--primary); }
+  50% { box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="arctic-frost"] .glass,
+[data-theme="graphite"] .glass {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  border-image: linear-gradient(135deg, var(--gradient-from), var(--gradient-to)) 1;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
+}

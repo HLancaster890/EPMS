@@ -1,0 +1,53 @@
+<Project Sdk="WixToolset.Sdk/5.0.0">
+  <PropertyGroup>
+    <Name>EPMS Agent Client</Name>
+    <ProductName>EPMS Agent Client</ProductName>
+    <Manufacturer>EPMS Inc.</Manufacturer>
+    <Version>1.0.0.0</Version>
+    <UpgradeCode>B8E2F7A1-9C3D-4E5F-B6A7-8C9D0E1F2A34</UpgradeCode>
+    <OutputType>Package</OutputType>
+    <OutputName>EPMS_Agent_Setup_v$(Version)</OutputName>
+    <OutputPath>$(SolutionDir)dist\</OutputPath>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <SuppressValidation>false</SuppressValidation>
+    <Pedantic>false</Pedantic>
+    <CabinetCreationThreadCount>4</CabinetCreationThreadCount>
+    <EmbedCab>yes</EmbedCab>
+    <CopyOutputSymbolsToOutput>false</CopyOutputSymbolsToOutput>
+    <CopyOutputContentsToOutput>false</CopyOutputContentsToOutput>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>Configuration=Release</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>Configuration=Debug</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Compiler/Linker Variables -->
+  <ItemGroup>
+    <BindInputPaths Include="$(SolutionDir)Resources\" />
+
+    <DefineConstants>
+      ProductVersion=$(Version);
+      ProductName=EPMS Agent Client;
+      Manufacturer=EPMS Inc.;
+      ResourcesDir=$(SolutionDir)Resources\;
+      ConfigDir=$(SolutionDir)Config\;
+      DistDir=$(SolutionDir)dist\;
+    </DefineConstants>
+  </ItemGroup>
+
+  <!-- WiX Extensions -->
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.0" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.0" />
+    <PackageReference Include="WixToolset.Bal.wixext" Version="5.0.0" />
+  </ItemGroup>
+
+  <!-- Source Files -->
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+    <Compile Include="Variables.wxi" />
+  </ItemGroup>
+</Project>

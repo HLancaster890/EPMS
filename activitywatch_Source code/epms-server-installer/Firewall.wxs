@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  EPMS Enterprise Server — Windows Firewall Rules
+  Configures Windows Defender Firewall exceptions for all EPMS services.
+  Security principle: Internal services (DB, cache, bus) restricted to local subnet.
+  Only the HTTPS reverse proxy port is open to any network.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:fw="http://wixtoolset.org/schemas/v4/wxs/firewall">
+
+    <?include Variables.wxi ?>
+
+    <Fragment>
+        <ComponentGroup Id="FirewallRules">
+
+            <!-- HTTPS (Reverse Proxy) — Open to any network for client access -->
+            <Component Id="cmp_Firewall_HTTPS" Directory="INSTALLFOLDER" Guid="F7A8B9C0-D1E2-3456-F123-456780123456">
+                <fw:FirewallException
+                    Id="fw_HTTPS"
+                    Name="EPMS Web Portal (HTTPS Port $(var.Port_HTTPS))"
+                    Description="Allows HTTPS connections to the EPMS Web Management Portal from any network"
+                    Port="$(var.Port_HTTPS)"
+                    Protocol="tcp"
+                    Scope="any" />
+            </Component>
+
+            <!-- API Service — Local subnet only -->
+            <Component Id="cmp_Firewall_API" Directory="INSTALLFOLDER" Guid="F1A2B3C4-D5E6-7890-ABCD-EF1234567801">
+                <fw:FirewallException
+                    Id="fw_API"
+                    Name="EPMS API Service (Port $(var.Port_Api))"
+                    Description="Allows local subnet connections to the EPMS REST API service"
+                    Port="$(var.Port_Api)"
+                    Protocol="tcp"
+                    Scope="localSubnet" />
+            </Component>
+
+            <!-- Analytics Service — Local subnet only -->
+            <Component Id="cmp_Firewall_Analytics" Directory="INSTALLFOLDER" Guid="A2B3C4D5-E6F7-8901-BCDE-F12345678012">
+                <fw:FirewallException
+                    Id="fw_Analytics"
+                    Name="EPMS Analytics Service (Port $(var.Port_Analytics))"
+                    Description="Allows local subnet connections to the EPMS Analytics service"
+                    Port="$(var.Port_Analytics)"
+                    Protocol="tcp"
+                    Scope="localSubnet" />
+            </Component>
+
+            <!-- Reporting Service — Local subnet only -->
+            <Component Id="cmp_Firewall_Reporting" Directory="INSTALLFOLDER" Guid="B3C4D5E6-F7A8-9012-CDEF-123456780123">
+                <fw:FirewallException
+                    Id="fw_Reporting"
+                    Name="EPMS Reporting Service (Port $(var.Port_Reporting))"
+                    Description="Allows local subnet connections to the EPMS Reporting service"
+                    Port="$(var.Port_Reporting)"
+                    Protocol="tcp"
+                    Scope="localSubnet" />
+            </Component>
+
+            <!-- Notification Service — Local subnet only -->
+            <Component Id="cmp_Firewall_Notifications" Directory="INSTALLFOLDER" Guid="C4D5E6F7-A8B9-0123-DEF1-234567801234">
+                <fw:FirewallException
+                    Id="fw_Notifications"
+                    Name="EPMS Notification Service (Port $(var.Port_Notifications))"
+                    Description="Allows local subnet connections to the EPMS Notification service"
+                    Port="$(var.Port_Notifications)"
+                    Protocol="tcp"
+                    Scope="localSubnet" />
+            </Component>
+
+            <!-- Event Processor — Local subnet only -->
+            <Component Id="cmp_Firewall_EventProcessor" Directory="INSTALLFOLDER" Guid="D5E6F7A8-B9C0-1234-EF12-345678012345">
+                <fw:FirewallException
+                    Id="fw_EventProcessor"
+                    Name="EPMS Event Processor (Port $(var.Port_EventProcessor))"
+                    Description="Allows local subnet connections to the EPMS Event Processing service"
+                    Port="$(var.Port_EventProcessor)"
+                    Protocol="tcp"
+                    Scope="localSubnet" />
+            </Component>
+
+            <!-- Agent Gateway (WebSocket) — Local subnet only -->
+            <Component Id="cmp_Firewall_AgentGateway" Directory="INSTALLFOLDER" Guid="E6F7A8B9-C0D1-2345-EF12-345678012345">
+                <fw:FirewallException
+                    Id="fw_AgentGateway"
+                    Name="EPMS Agent Gateway (Port $(var.Port_AgentGateway))"
+                    Description="Allows local subnet WebSocket connections for agent communication"
+                    Port="$(var.Port_AgentGateway)"
+                    Protocol="tcp"
+                    Scope="localSubnet" />
+            </Component>
+
+            <!-- PostgreSQL — Local subnet only -->
+            <Component Id="cmp_Firewall_PostgreSQL" Directory="INSTALLFOLDER" Guid="A8B9C0D1-E2F3-4567-8901-234567890abc">
+                <fw:FirewallException
+                    Id="fw_PostgreSQL"
+                    Name="EPMS PostgreSQL Database (Port $(var.Port_PostgreSQL))"
+                    Description="Allows local subnet database connections only"
+                    Port="$(var.Port_PostgreSQL)"
+                    Protocol="tcp"
+                    Scope="localSubnet" />
+            </Component>
+
+            <!-- Redis — Local only (no open firewall rule, access through API) -->
+            <!-- Redis is accessed only by localhost services, no firewall rule needed -->
+
+            <!-- NATS — Local subnet only -->
+            <Component Id="cmp_Firewall_NATS" Directory="INSTALLFOLDER" Guid="C0D1E2F3-A4B5-6789-0123-456789012cde">
+                <fw:FirewallException
+                    Id="fw_NATS"
+                    Name="EPMS NATS Message Bus (Port $(var.Port_NATS))"
+                    Description="Allows local subnet NATS message bus connections only"
+                    Port="$(var.Port_NATS)"
+                    Protocol="tcp"
+                    Scope="localSubnet" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

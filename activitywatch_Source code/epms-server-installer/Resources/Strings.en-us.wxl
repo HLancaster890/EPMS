@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+    <String Id="WelcomeMessage" Value="Welcome to the EPMS Enterprise Server Setup Wizard.&#13;&#10;&#13;&#10;This wizard will guide you through installing EPMS Enterprise Server version $(var.ProductVersion).&#13;&#10;&#13;&#10;EPMS Enterprise Server is a comprehensive productivity management, workforce analytics, and endpoint monitoring platform designed for enterprise environments.&#13;&#10;&#13;&#10;Click &quot;Next&quot; to continue, or &quot;Cancel&quot; to exit the Setup Wizard." />
+    <String Id="InstallSuccessText" Value="✓ EPMS API Service: Running&#13;&#10;✓ EPMS Analytics Service: Running&#13;&#10;✓ EPMS Reporting Service: Running&#13;&#10;✓ EPMS Notifications Service: Running&#13;&#10;✓ EPMS Event Processor: Running&#13;&#10;✓ EPMS Agent Gateway: Running&#13;&#10;✓ PostgreSQL Database: Connected&#13;&#10;✓ Redis Cache: Connected&#13;&#10;✓ NATS Message Bus: Connected&#13;&#10;&#13;&#10;Web Portal: https://[EPMS_SERVER_ADDRESS]:[EPMS_PORT]&#13;&#10;Admin Login: [EPMS_ADMIN_EMAIL]" />
+    <String Id="LaunchDashboardCheckbox" Value="Launch EPMS Dashboard" />
+    <String Id="ViewInstallLogCheckbox" Value="View installation log" />
+    <String Id="InstallDate" Overridable="yes" Value="[Date]" />
+    <String Id="ServerNotResponding" Value="Server is not responding. Please check the address and try again." />
+    <String Id="InvalidCredentials" Value="Invalid credentials. Please verify your enrollment token." />
+    <String Id="PortInUse" Value="Port [EPMS_PORT] is already in use. Please choose a different port." />
+    <String Id="DBConnectionFailed" Value="Could not connect to the database. Please verify your database configuration." />
+    <String Id="PasswordTooWeak" Value="Password does not meet minimum requirements. Must be at least 12 characters with uppercase, lowercase, number, and special character." />
+    <String Id="PasswordsDoNotMatch" Value="Passwords do not match. Please re-enter." />
+    <String Id="ConfigurationSaved" Value="Configuration has been saved successfully." />
+    <String Id="WixUIInstall" Value="Install" />
+    <String Id="WixUIFinish" Value="Finish" />
+    <String Id="WixUIYes" Value="Yes" />
+    <String Id="WixUINo" Value="No" />
+    <String Id="LicenseAcceptText" Value="I accept the terms in the License Agreement" />
+    <String Id="ReadySummaryText" Value="EPMS Enterprise Server will be installed with the following configuration:&#13;&#10;&#13;&#10;    Installation Path: [INSTALLFOLDER]&#13;&#10;    HTTPS Port: [EPMS_PORT]&#13;&#10;    Database Port: [EPMS_DB_PORT]&#13;&#10;    SSL Mode: [EPMS_SSL_MODE]&#13;&#10;&#13;&#10;Click Install to begin the installation." />
+</WixLocalization>
