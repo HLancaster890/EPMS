@@ -1,11 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 a = Analysis(
     ['..\\Resources\\services\\epms_server_service.py'],
-    pathex=['..\\Resources'],
+    pathex=['..\\Resources', '..\\Resources\\services'],
     binaries=[],
     datas=[],
     hiddenimports=[
         'epms_server_service',
+        'routes', 'routes.state', 'routes.models', 'routes.helpers',
+        'routes.auth_routes', 'routes.agent_routes',
         'epms_server.rbac', 'epms_server.ad_login', 'epms_server.aggregation',
         'epms_common', 'epms_common.settings', 'epms_common.db',
         'epms_common.middleware',
